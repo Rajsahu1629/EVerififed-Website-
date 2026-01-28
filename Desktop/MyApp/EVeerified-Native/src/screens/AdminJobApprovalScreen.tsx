@@ -87,7 +87,11 @@ export default function AdminJobApprovalScreen() {
                         text: 'OK',
                         onPress: () => {
                             if (updatedJobs.length === 0) {
-                                navigation.goBack();
+                                if (navigation.canGoBack()) {
+                                    navigation.goBack();
+                                } else {
+                                    navigation.navigate('AdminDashboard' as any);
+                                }
                             }
                         }
                     }
@@ -225,7 +229,10 @@ export default function AdminJobApprovalScreen() {
 
             {/* Header */}
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+                <TouchableOpacity
+                    onPress={() => navigation.canGoBack() ? navigation.goBack() : navigation.navigate('AdminDashboard' as any)}
+                    style={styles.backBtn}
+                >
                     <ArrowLeft size={24} color={colors.foreground} />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Job Approvals</Text>
@@ -242,7 +249,7 @@ export default function AdminJobApprovalScreen() {
 
                     <TouchableOpacity
                         style={[styles.actionBtn, { marginTop: spacing.xl, backgroundColor: '#7c3aed', paddingHorizontal: 30 }]}
-                        onPress={() => navigation.goBack()}
+                        onPress={() => navigation.canGoBack() ? navigation.goBack() : navigation.navigate('AdminDashboard' as any)}
                     >
                         <ArrowLeft size={18} color="#fff" />
                         <Text style={{ color: '#fff', fontWeight: 'bold', marginLeft: 8 }}>Back to Dashboard</Text>
