@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { PlusCircle, FileText, ChevronRight, LogOut, Users } from 'lucide-react-native';
+import { PlusCircle, FileText, ChevronRight, LogOut, Users, Search } from 'lucide-react-native';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useUser } from '../contexts/UserContext';
@@ -76,6 +76,22 @@ const RecruiterDashboardScreen: React.FC = () => {
                     <View style={styles.actionTextContainer}>
                         <Text style={styles.actionTitle}>{t('previousJobPosts')}</Text>
                         <Text style={styles.actionDesc}>{t('previousJobPostsDesc')}</Text>
+                    </View>
+                    <ChevronRight size={24} color={colors.muted} />
+                </TouchableOpacity>
+
+                {/* Find Candidates */}
+                <TouchableOpacity
+                    style={styles.actionCard}
+                    onPress={() => navigation.navigate('CandidateSearch')}
+                    activeOpacity={0.7}
+                >
+                    <View style={[styles.actionIconWrapper, { backgroundColor: '#e0f2fe' }]}>
+                        <Search size={32} color="#0284c7" />
+                    </View>
+                    <View style={styles.actionTextContainer}>
+                        <Text style={styles.actionTitle}>Find Candidates</Text>
+                        <Text style={styles.actionDesc}>Search verified EV professionals</Text>
                     </View>
                     <ChevronRight size={24} color={colors.muted} />
                 </TouchableOpacity>

@@ -25,6 +25,7 @@
     "expo-status-bar": "~3.0.9",
     "lucide-react-native": "^0.563.0",
     "neon-serverless": "^0.5.3",
+    "pg": "^8.17.2",
     "react": "19.1.0",
     "react-native": "0.81.5",
     "react-native-gesture-handler": "~2.28.0",

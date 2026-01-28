@@ -6,17 +6,8 @@ import { colors, spacing } from '../lib/theme';
 import IDCardScreen from '../screens/IDCardScreen';
 import JobsScreen from '../screens/JobsScreen';
 import AppliedJobsScreen from '../screens/AppliedJobsScreen';
+import LearnScreen from '../screens/LearnScreen';
 import NewsScreen from '../screens/NewsScreen';
-
-// Placeholder for Learn/Resources screen
-import { View, Text } from 'react-native';
-const LearnScreen = () => (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}>
-        <BookOpen size={64} color={colors.primary} />
-        <Text style={{ marginTop: 16, fontSize: 18, color: colors.foreground }}>Learning Resources</Text>
-        <Text style={{ marginTop: 8, color: colors.muted }}>Coming Soon</Text>
-    </View>
-);
 
 const Tab = createBottomTabNavigator();
 

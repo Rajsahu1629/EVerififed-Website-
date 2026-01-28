@@ -10,6 +10,7 @@ import {
     Alert,
     KeyboardAvoidingView,
     Platform,
+    Modal,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -62,6 +63,7 @@ const VerificationFormScreen: React.FC = () => {
 
     const [step, setStep] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
+    const [showTerms, setShowTerms] = useState(false);
 
     // Auto-set experience for Aspirants
     // Auto-set experience removed to allow selection
@@ -81,12 +83,14 @@ const VerificationFormScreen: React.FC = () => {
         brandWorkshop: '',
         brands: [] as string[],
         otherQualification: '',
-        priorKnowledge: '', // For Freshers
+        priorKnowledge: '',
+        agreedToTerms: false,
+        currentSalary: '',
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
 
-    const updateField = (field: string, value: string | string[]) => {
+    const updateField = (field: string, value: string | string[] | boolean) => {
         setFormData(prev => ({ ...prev, [field]: value }));
         if (errors[field]) {
             setErrors(prev => ({ ...prev, [field]: '' }));
@@ -123,6 +127,7 @@ const VerificationFormScreen: React.FC = () => {
             if (formData.qualification === 'other' && !formData.otherQualification) {
                 newErrors.otherQualification = t('required');
             }
+            if (!formData.agreedToTerms) newErrors.agreedToTerms = t('termsRequired');
         }
 
         setErrors(newErrors);
@@ -170,7 +175,38 @@ const VerificationFormScreen: React.FC = () => {
             );
 
             if (existingUsers.length > 0) {
-                Alert.alert(t('error'), t('userAlreadyExists'));
+                // Show inline error for better UX
+                setErrors({ ...errors, phoneNumber: t('userAlreadyExists') });
+                // If using steps, we might need to go back to Step 1 if we are on Review Step?
+                // But registration happens at end. 
+                // We should ensure user sees Step 3 (Review)? 
+                // Actually if they submitted, they are likely on Review Screen or Step 1?
+                // Step 1 logic: if (step === 1 && selectedRole === 'aspirant') handleSubmit()
+                // Step 3 logic: Review Submit.
+
+                // If we are on Step 3 (Review) or Step 1 (Aspirant), the phone field is visible?
+                // On Step 3 (Review), we show summary. We don't show Input field usually.
+                // We should probably show Alert if on Review screen, OR navigate back to Step 1 to show error?
+
+                // Let's Alert AND set error so if they go back they see it.
+                // But User asked "show the error related that field".
+
+                // Effective strategy:
+                // 1. Set Error.
+                // 2. If valid step (Step 3), maybe go to Step 1?
+                // Or just Alert is fine if Step 3.
+
+                // If Aspirant (Step 1): Inline error works.
+                setErrors(prev => ({ ...prev, phoneNumber: t('userAlreadyExists') }));
+
+                if (step > 1) {
+                    Alert.alert(t('error'), t('userAlreadyExists'), [
+                        { text: 'OK', onPress: () => setStep(1) } // Send them back to fix it
+                    ]);
+                } else {
+                    // Inline error is visible
+                }
+
                 setIsLoading(false);
                 return;
             }
@@ -179,8 +215,8 @@ const VerificationFormScreen: React.FC = () => {
                 `INSERT INTO users (
           full_name, phone_number, password, state, city, pincode,
           qualification, experience, current_workshop, brand_workshop,
-          brands, role, verification_status, verification_step, prior_knowledge
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)`,
+          brands, role, verification_status, verification_step, prior_knowledge, current_salary
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)`,
                 [
                     formData.fullName, // 1
                     formData.phoneNumber, // 2
@@ -196,7 +232,8 @@ const VerificationFormScreen: React.FC = () => {
                     selectedRole || 'technician', // 12
                     'pending', // 13
                     0, // 14
-                    formData.priorKnowledge // 15
+                    formData.priorKnowledge, // 15
+                    selectedRole === 'aspirant' ? '0' : formData.currentSalary // 16
                 ]
             );
 
@@ -317,6 +354,24 @@ const VerificationFormScreen: React.FC = () => {
                             />
                         </View>
                     )}
+
+                    {selectedRole === 'aspirant' && (
+                        <View style={{ marginTop: spacing.md }}>
+                            <TouchableOpacity
+                                style={{ flexDirection: 'row', alignItems: 'center', marginVertical: spacing.md }}
+                                onPress={() => updateField('agreedToTerms', !formData.agreedToTerms)}
+                            >
+                                <Checkbox
+                                    checked={formData.agreedToTerms}
+                                    onCheckedChange={(v) => updateField('agreedToTerms', v)}
+                                />
+                                <Text style={{ marginLeft: spacing.sm, flex: 1, color: colors.foreground }}>
+                                    {t('termsAndConditions')}
+                                </Text>
+                            </TouchableOpacity>
+                            {errors.agreedToTerms && <Text style={{ color: colors.error, fontSize: fontSize.sm }}>{errors.agreedToTerms}</Text>}
+                        </View>
+                    )}
                 </>
             )}
 
@@ -370,6 +425,17 @@ const VerificationFormScreen: React.FC = () => {
                     value={formData.currentWorkshop}
                     onChangeText={(v) => updateField('currentWorkshop', v)}
                     leftIcon={<Briefcase size={20} color={colors.muted} />}
+                />
+            )}
+
+            {selectedRole !== 'aspirant' && (
+                <Input
+                    label={t('currentSalary')}
+                    placeholder="e.g. 25000"
+                    value={formData.currentSalary}
+                    onChangeText={(v) => updateField('currentSalary', v)}
+                    keyboardType="numeric"
+                    leftIcon={<Text style={{ fontSize: 18, color: colors.muted }}>₹</Text>}
                 />
             )}
 
@@ -448,7 +514,61 @@ const VerificationFormScreen: React.FC = () => {
                     </View>
                 </>
             )}
+
+            <TouchableOpacity
+                style={{ flexDirection: 'row', alignItems: 'center', marginVertical: spacing.md }}
+                onPress={() => updateField('agreedToTerms', !formData.agreedToTerms)}
+            >
+                <Checkbox
+                    checked={formData.agreedToTerms}
+                    onCheckedChange={(v) => updateField('agreedToTerms', v)}
+                />
+                <View style={{ flex: 1, marginLeft: spacing.sm }}>
+                    <Text style={{ color: colors.foreground }}>
+                        {t('termsAndConditions').split(' ')[0]}
+                        <Text
+                            style={{ color: colors.primary, fontWeight: 'bold' }}
+                            onPress={() => setShowTerms(true)}
+                        >
+                            {" " + t('termsAndConditions').substring(2)}
+                        </Text>
+                    </Text>
+                </View>
+            </TouchableOpacity>
+            {errors.agreedToTerms && <Text style={{ color: colors.error, fontSize: fontSize.sm }}>{errors.agreedToTerms}</Text>}
         </View>
+    );
+
+    const renderTermsModal = () => (
+        <Modal
+            visible={showTerms}
+            animationType="slide"
+            transparent={true}
+            onRequestClose={() => setShowTerms(false)}
+        >
+            <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: spacing.md }}>
+                <View style={{ backgroundColor: colors.card, borderRadius: spacing.md, padding: spacing.lg, maxHeight: '80%' }}>
+                    <Text style={{ fontSize: fontSize.lg, fontWeight: 'bold', marginBottom: spacing.md, color: colors.foreground }}>
+                        Privacy Policy & Terms
+                    </Text>
+                    <ScrollView>
+                        <Text style={{ color: colors.foreground, lineHeight: 22 }}>
+                            1. **Data Collection**: We collect your Name, Phone Number, Location, and Professional Qualifications to create your EV Technician Profile.{"\n\n"}
+                            2. **Purpose**: Your data is used to verify your skills and connect you with job opportunities in the EV sector.{"\n\n"}
+                            3. **Sharing**: Verified profiles may be shared with registered Recruiters (OEMs, Dealers, Fleets).{"\n\n"}
+                            4. **User Rights**: You can request to edit or delete your data at any time by contacting support.{"\n\n"}
+                            5. **Consent**: By registering, you agree to receive communications (SMS/WhatsApp) regarding your application and jobs.
+                        </Text>
+                    </ScrollView>
+                    <TouchableOpacity
+                        style={{ backgroundColor: colors.primary, padding: spacing.md, borderRadius: spacing.sm, marginTop: spacing.md, alignItems: 'center' }}
+                        onPress={() => setShowTerms(false)}
+                    >
+                        <Text style={{ color: colors.primaryForeground, fontWeight: 'bold' }}>Close</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+        </Modal>
     );
 
     return (
@@ -507,6 +627,7 @@ const VerificationFormScreen: React.FC = () => {
                     </View>
                 </ScrollView>
             </KeyboardAvoidingView>
+            {renderTermsModal()}
         </SafeAreaView>
     );
 };

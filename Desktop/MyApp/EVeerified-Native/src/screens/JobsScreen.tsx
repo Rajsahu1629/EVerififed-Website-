@@ -65,6 +65,7 @@ export default function JobsScreen() {
     const [applyingTo, setApplyingTo] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [filteredJobs, setFilteredJobs] = useState<JobPost[]>([]);
+    const [salaryFilter, setSalaryFilter] = useState<number | null>(null); // Min salary filter
 
     // Fetch jobs from database
     const fetchJobs = useCallback(async () => {
@@ -73,7 +74,7 @@ export default function JobsScreen() {
                 `SELECT id, brand, role_required, number_of_people, experience, 
                         salary_min, salary_max, pincode, city, stay_provided, has_incentive
                  FROM job_posts 
-                 WHERE is_active = true 
+                 WHERE is_active = true AND status = 'approved'
                  ORDER BY created_at DESC`
             );
             setJobs(result);
@@ -151,20 +152,30 @@ export default function JobsScreen() {
         });
     };
 
-    // Filter jobs when search query changes
+    // Filter jobs when search query or salary filter changes
     useEffect(() => {
-        if (!searchQuery.trim()) {
-            setFilteredJobs(jobs);
-        } else {
+        let filtered = [...jobs];
+
+        // Apply search filter
+        if (searchQuery.trim()) {
             const query = searchQuery.toLowerCase().trim();
-            const filtered = jobs.filter(job =>
+            filtered = filtered.filter(job =>
                 (job.city && job.city.toLowerCase().includes(query)) ||
                 (job.pincode && job.pincode.includes(query)) ||
                 (job.brand && job.brand.toLowerCase().includes(query))
             );
-            setFilteredJobs(filtered);
         }
-    }, [searchQuery, jobs]);
+
+        // Apply salary filter
+        if (salaryFilter) {
+            filtered = filtered.filter(job =>
+                (job.salary_min && job.salary_min >= salaryFilter) ||
+                (job.salary_max && job.salary_max >= salaryFilter)
+            );
+        }
+
+        setFilteredJobs(filtered);
+    }, [searchQuery, salaryFilter, jobs]);
 
     // Format experience
     const formatExperience = (exp: string): string => {
@@ -230,7 +241,6 @@ export default function JobsScreen() {
                         <Text style={styles.detailText}>{formatExperience(item.experience)}</Text>
                     </View>
                     <View style={styles.detailItem}>
-                        <IndianRupee size={14} color={colors.muted} />
                         <Text style={styles.detailText}>
                             {formatSalary(item.salary_min, item.salary_max)}
                         </Text>
@@ -305,7 +315,8 @@ export default function JobsScreen() {
                         </Text>
                         <Text style={styles.headerSubtitle}>
                             {userData?.role === 'technician' ? 'EV Technician' :
-                                userData?.role === 'sales' ? 'EV Sales Manager' : 'EV Professional'}
+                                userData?.role === 'sales' ? 'EV Showroom Manager' :
+                                    userData?.role === 'workshop' ? 'EV Workshop Manager' : 'EV Professional'}
                         </Text>
                     </View>
                     <View style={styles.headerActions}>
@@ -339,6 +350,31 @@ export default function JobsScreen() {
                             <X size={20} color={colors.muted} />
                         </TouchableOpacity>
                     )}
+                </View>
+
+                {/* Salary Filter Chips */}
+                <View style={styles.filterRow}>
+                    <Text style={styles.filterLabel}>Salary:</Text>
+                    {[
+                        { label: 'All', value: null },
+                        { label: '₹10K+', value: 10000 },
+                        { label: '₹15K+', value: 15000 },
+                        { label: '₹20K+', value: 20000 },
+                    ].map((filter) => (
+                        <TouchableOpacity
+                            key={filter.label}
+                            style={[
+                                styles.filterChip,
+                                salaryFilter === filter.value && styles.filterChipActive,
+                            ]}
+                            onPress={() => setSalaryFilter(filter.value)}
+                        >
+                            <Text style={[
+                                styles.filterChipText,
+                                salaryFilter === filter.value && styles.filterChipTextActive,
+                            ]}>{filter.label}</Text>
+                        </TouchableOpacity>
+                    ))}
                 </View>
 
                 {loading ? (
@@ -587,5 +623,38 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: spacing.sm,
+    },
+    // Filter styles
+    filterRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: spacing.md,
+        paddingVertical: spacing.sm,
+        gap: spacing.xs,
+    },
+    filterLabel: {
+        fontSize: 12,
+        color: colors.muted,
+        marginRight: spacing.xs,
+    },
+    filterChip: {
+        paddingHorizontal: spacing.sm,
+        paddingVertical: spacing.xs,
+        borderRadius: 16,
+        backgroundColor: colors.secondary,
+        borderWidth: 1,
+        borderColor: colors.border,
+    },
+    filterChipActive: {
+        backgroundColor: colors.primary,
+        borderColor: colors.primary,
+    },
+    filterChipText: {
+        fontSize: 12,
+        color: colors.foreground,
+    },
+    filterChipTextActive: {
+        color: '#fff',
+        fontWeight: '600',
     },
 });

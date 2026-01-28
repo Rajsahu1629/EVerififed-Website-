@@ -38,8 +38,8 @@ const evBrands = [
 
 const roles = [
     { label: 'EV Technician', value: 'technician' },
-    { label: 'EV Sales Manager', value: 'sales' },
-    { label: 'EV Showroom Manager', value: 'workshop' },
+    { label: 'EV Showroom Manager', value: 'sales' },
+    { label: 'EV Workshop Manager', value: 'workshop' },
 ];
 
 const experiences = [
@@ -59,6 +59,7 @@ const PostJobScreen: React.FC = () => {
 
     const [formData, setFormData] = useState({
         brand: '',
+        otherBrand: '', // Custom brand name when 'Other' is selected
         roleRequired: '',
         numberOfPeople: '',
         experience: '',
@@ -69,6 +70,7 @@ const PostJobScreen: React.FC = () => {
         city: '',
         stayProvided: false,
         urgency: 'within_7_days',
+        jobDescription: '',
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -84,6 +86,7 @@ const PostJobScreen: React.FC = () => {
         const newErrors: Record<string, string> = {};
 
         if (!formData.brand) newErrors.brand = t('required');
+        if (formData.brand === 'Other' && !formData.otherBrand) newErrors.otherBrand = t('required');
         if (!formData.roleRequired) newErrors.roleRequired = t('required');
         if (!formData.numberOfPeople) newErrors.numberOfPeople = t('required');
         if (!formData.experience) newErrors.experience = t('required');
@@ -123,11 +126,11 @@ const PostJobScreen: React.FC = () => {
                 `INSERT INTO job_posts (
           recruiter_id, brand, role_required, number_of_people, experience,
           salary_min, salary_max, has_incentive, pincode, city, stay_provided,
-          urgency, status, is_active
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
+          urgency, job_description, status, is_active
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)`,
                 [
                     parseInt(recruiterData?.id || '0'),
-                    formData.brand,
+                    formData.brand === 'Other' ? formData.otherBrand : formData.brand,
                     formData.roleRequired,
                     formData.numberOfPeople,
                     formData.experience,
@@ -138,7 +141,8 @@ const PostJobScreen: React.FC = () => {
                     formData.city,
                     formData.stayProvided,
                     formData.urgency,
-                    'received',
+                    formData.jobDescription,
+                    'pending',
                     true,
                 ]
             );
@@ -164,6 +168,17 @@ const PostJobScreen: React.FC = () => {
                 onValueChange={(v) => updateField('brand', v)}
                 error={errors.brand}
             />
+
+            {/* Show text input when Other is selected */}
+            {formData.brand === 'Other' && (
+                <Input
+                    label="Enter Brand Name"
+                    placeholder="e.g. Tata, Mahindra, etc."
+                    value={formData.otherBrand}
+                    onChangeText={(v) => updateField('otherBrand', v)}
+                    error={errors.otherBrand}
+                />
+            )}
 
             <Select
                 label={t('roleRequired')}
@@ -293,6 +308,16 @@ const PostJobScreen: React.FC = () => {
                     </Text>
                 </TouchableOpacity>
             </View>
+
+            <Input
+                label="Job Description"
+                placeholder="Enter job description, requirements, and responsibilities..."
+                value={formData.jobDescription}
+                onChangeText={(v) => updateField('jobDescription', v)}
+                multiline
+                numberOfLines={4}
+                style={{ height: 100, textAlignVertical: 'top' }}
+            />
         </>
     );
 

@@ -129,8 +129,13 @@ const SkillVerificationScreen: React.FC = () => {
             const passed = percentage >= 70;
 
             let newStatus = userData?.verificationStatus;
+            // Sales and Workshop only need step 1, Technician needs both step 1 and step 2
+            const isSingleStepRole = userData?.role === 'sales' || userData?.role === 'workshop' || userData?.role === 'aspirant';
+
             if (currentStep === 1 && passed) {
-                newStatus = 'step1_completed';
+                // For single-step roles, step 1 = verified
+                // For technician, step 1 = step1_completed (needs step 2)
+                newStatus = isSingleStepRole ? 'verified' : 'step1_completed';
             } else if (currentStep === 2 && passed) {
                 newStatus = 'verified';
             } else if (!passed) {
@@ -195,12 +200,14 @@ const SkillVerificationScreen: React.FC = () => {
 
                     <Text style={styles.resultsMessage}>
                         {passed
-                            ? (currentStep === 1 ? t('step1PassedMessage') : t('verificationPassedMessage'))
+                            ? (currentStep === 1 && userData?.role === 'technician'
+                                ? t('step1PassedMessage')
+                                : t('verificationPassedMessage'))
                             : t('verificationFailedMessage')
                         }
                     </Text>
 
-                    {passed && currentStep === 1 ? (
+                    {passed && currentStep === 1 && userData?.role === 'technician' ? (
                         <Button
                             onPress={() => navigation.replace('SkillVerification', { step: 2 })}
                             fullWidth

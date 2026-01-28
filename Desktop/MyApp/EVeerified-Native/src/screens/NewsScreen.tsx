@@ -1,91 +1,122 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity, StatusBar, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, spacing, borderRadius, fontSize } from '../lib/theme';
-import { Calendar, ChevronRight } from 'lucide-react-native';
+import { colors, spacing, borderRadius } from '../lib/theme';
+import { Calendar, ChevronRight, Newspaper, ExternalLink } from 'lucide-react-native';
 import { useLanguage } from '../contexts/LanguageContext';
 
+// Hardcoded EV News - lightweight, no database
 const NEWS_DATA = [
     {
         id: '1',
         title_en: 'India to have 10,000 EV charging stations by 2026',
         title_hi: 'भारत में 2026 तक 10,000 EV चार्जिंग स्टेशन होंगे',
-        title_mr: 'भारतात २०२६ पर्यंत १०,००० ईव्ही चार्जिंग स्टेशन असतील',
-        title_kn: '2026 ರ ವೇಳೆಗೆ ಭಾರತದಲ್ಲಿ 10,000 ಇವಿ ಚಾರ್ಜಿಂಗ್ ಸ್ಟೇಷನ್‌ಗಳು',
-        title_te: '2026 నాటికి భారతదేశంలో 10,000 EV ఛార్జింగ్ స్టేషన్లు',
-        title_or: '୨୦୨୬ ସୁଦ୍ଧା ଭାରତରେ ୧୦,୦୦୦ ଇଭି ଚାର୍ଜିଂ ଷ୍ଟେସନ ହେବ',
         source: 'EV India News',
         date: '2 hours ago',
-        image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+        image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=400',
+        url: 'https://www.google.com/search?q=ev+charging+stations+india',
     },
     {
         id: '2',
         title_en: 'Tata Motors announces new EV battery technology',
         title_hi: 'टाटा मोटर्स ने नई EV बैटरी तकनीक की घोषणा की',
-        title_mr: 'टाटा मोटर्सने नवीन ईव्ही बॅटरी तंत्रज्ञानाची घोषणा केली',
-        title_kn: 'ಟಾಟಾ ಮೋಟಾರ್ಸ್ ಹೊಸ ಇವಿ ಬ್ಯಾಟರಿ ತಂತ್ರಜ್ಞಾನವನ್ನು ಘೋಷಿಸಿದೆ',
-        title_te: 'టాటా మోటార్స్ కొత్త EV బ్యాటరీ టెక్నాలజీని ప్రకటించింది',
-        title_or: 'ଟାଟା ମୋଟର୍ସ ନୂତନ ଇଭି ବ୍ୟାଟେରୀ ପ୍ରଯୁକ୍ତିବିଦ୍ୟା ଘୋଷಣಾ କରିଛି',
         source: 'Auto Weekly',
         date: '5 hours ago',
-        image: 'https://images.unsplash.com/photo-1617788138017-80ad40651399?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+        image: 'https://images.unsplash.com/photo-1617788138017-80ad40651399?w=400',
+        url: 'https://www.google.com/search?q=tata+motors+ev+battery',
     },
     {
         id: '3',
         title_en: 'Skills shortage in EV sector: 50,000 technicians needed',
         title_hi: 'EV क्षेत्र में कौशल की कमी: 50,000 तकनीशियनों की आवश्यकता',
-        title_mr: 'ईव्ही क्षेत्रात कौशल्यांची कमतरता: ५०,००० तंत्रज्ञांची गरज',
-        title_kn: 'ಇವಿ ಕ್ಷೇತ್ರದಲ್ಲಿ ಕೌಶಲ್ಯದ ಕೊರತೆ: 50,000 ತಂತ್ರಜ್ಞರ ಅಗತ್ಯವಿದೆ',
-        title_te: 'EV రంగంలో నైపుణ్యాల కొరత: 50,000 మంది టెక్నీషియన్లు అవసరం',
-        title_or: 'ଇଭି କ୍ଷେତ୍ରରେ ଦକ୍ଷତା ଅଭାବ: ୫୦,୦୦୦ ଟେକ୍ନିସିଆନ ଆବଶ୍ୟಕ',
         source: 'Skill India',
         date: '1 day ago',
-        image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+        image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=400',
+        url: 'https://www.google.com/search?q=ev+technician+jobs+india',
+    },
+    {
+        id: '4',
+        title_en: 'Ola Electric expands footprint, opens 100 new showrooms',
+        title_hi: 'ओला इलेक्ट्रिक ने 100 नए शोरूम खोले',
+        source: 'Business Today',
+        date: '2 days ago',
+        image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400',
+        url: 'https://www.google.com/search?q=ola+electric+showrooms',
+    },
+    {
+        id: '5',
+        title_en: 'Government extends FAME II subsidy for electric vehicles',
+        title_hi: 'सरकार ने FAME II सब्सिडी बढ़ाई',
+        source: 'Economic Times',
+        date: '3 days ago',
+        image: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=400',
+        url: 'https://www.google.com/search?q=fame+subsidy+ev+india',
     },
 ];
 
 export default function NewsScreen() {
     const { language } = useLanguage();
+    const isHindi = language === 'hi';
 
-    const renderItem = ({ item }: { item: any }) => {
-        const title = language === 'hi' ? item.title_hi :
-            language === 'mr' ? item.title_mr :
-                language === 'kn' ? item.title_kn :
-                    language === 'te' ? item.title_te :
-                        language === 'or' ? item.title_or :
-                            item.title_en;
+    const openNews = (url: string) => {
+        Linking.openURL(url);
+    };
 
-        return (
-            <TouchableOpacity style={styles.newsCard} activeOpacity={0.7}>
-                <Image source={{ uri: item.image }} style={styles.newsImage} />
-                <View style={styles.newsContent}>
-                    <Text style={styles.newsTitle} numberOfLines={2}>{title}</Text>
-                    <View style={styles.metaRow}>
-                        <Text style={styles.sourceText}>{item.source}</Text>
-                        <View style={styles.dot} />
-                        <View style={styles.dateRow}>
-                            <Calendar size={12} color={colors.muted} />
-                            <Text style={styles.dateText}>{item.date}</Text>
-                        </View>
+    const renderItem = ({ item }: { item: typeof NEWS_DATA[0] }) => (
+        <TouchableOpacity
+            style={styles.newsCard}
+            activeOpacity={0.7}
+            onPress={() => openNews(item.url)}
+        >
+            <Image source={{ uri: item.image }} style={styles.newsImage} />
+            <View style={styles.newsContent}>
+                <Text style={styles.newsTitle} numberOfLines={2}>
+                    {isHindi ? item.title_hi : item.title_en}
+                </Text>
+                <View style={styles.metaRow}>
+                    <Text style={styles.sourceText}>{item.source}</Text>
+                    <View style={styles.dot} />
+                    <View style={styles.dateRow}>
+                        <Calendar size={12} color={colors.muted} />
+                        <Text style={styles.dateText}>{item.date}</Text>
                     </View>
                 </View>
-                <View style={styles.arrowContainer}>
-                    <ChevronRight size={20} color={colors.muted} />
-                </View>
-            </TouchableOpacity>
-        );
-    };
+            </View>
+            <View style={styles.arrowContainer}>
+                <ChevronRight size={20} color={colors.muted} />
+            </View>
+        </TouchableOpacity>
+    );
 
     return (
         <SafeAreaView style={styles.container} edges={['top']}>
-            <StatusBar barStyle="dark-content" />
-            <Text style={styles.headerTitle}>EV News & Updates</Text>
+            <StatusBar barStyle="light-content" />
+
+            {/* Header */}
+            <View style={styles.header}>
+                <Newspaper size={22} color="#fff" />
+                <Text style={styles.headerTitle}>
+                    {isHindi ? 'EV समाचार' : 'EV News'}
+                </Text>
+            </View>
+
             <FlatList
                 data={NEWS_DATA}
                 renderItem={renderItem}
                 keyExtractor={item => item.id}
                 contentContainerStyle={styles.listContent}
                 showsVerticalScrollIndicator={false}
+                ListFooterComponent={() => (
+                    <TouchableOpacity
+                        style={styles.moreBtn}
+                        onPress={() => Linking.openURL('https://www.google.com/search?q=ev+news+india&tbm=nws')}
+                    >
+                        <ExternalLink size={16} color={colors.primary} />
+                        <Text style={styles.moreBtnText}>
+                            {isHindi ? 'और समाचार देखें' : 'More EV News'}
+                        </Text>
+                    </TouchableOpacity>
+                )}
             />
         </SafeAreaView>
     );
@@ -94,22 +125,28 @@ export default function NewsScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: colors.background,
+        backgroundColor: '#f8fafc',
+    },
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.sm,
+        backgroundColor: '#dc2626',
+        padding: spacing.md,
+        paddingTop: spacing.lg,
     },
     headerTitle: {
-        fontSize: 24,
+        fontSize: 18,
         fontWeight: 'bold',
-        color: colors.foreground,
-        paddingHorizontal: spacing.lg,
-        paddingVertical: spacing.md,
+        color: '#fff',
     },
     listContent: {
-        padding: spacing.lg,
-        gap: spacing.md,
+        padding: spacing.md,
+        gap: spacing.sm,
     },
     newsCard: {
         flexDirection: 'row',
-        backgroundColor: colors.card,
+        backgroundColor: '#fff',
         borderRadius: borderRadius.xl,
         padding: spacing.sm,
         gap: spacing.md,
@@ -119,6 +156,7 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.1,
         shadowRadius: 3,
+        marginBottom: spacing.sm,
     },
     newsImage: {
         width: 80,
@@ -132,10 +170,10 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     newsTitle: {
-        fontSize: 16,
+        fontSize: 14,
         fontWeight: '600',
         color: colors.foreground,
-        lineHeight: 22,
+        lineHeight: 20,
     },
     metaRow: {
         flexDirection: 'row',
@@ -143,7 +181,7 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     sourceText: {
-        fontSize: 12,
+        fontSize: 11,
         color: colors.primary,
         fontWeight: '600',
     },
@@ -159,10 +197,22 @@ const styles = StyleSheet.create({
         gap: 4,
     },
     dateText: {
-        fontSize: 12,
+        fontSize: 11,
         color: colors.muted,
     },
     arrowContainer: {
         paddingRight: spacing.sm,
+    },
+    moreBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 6,
+        padding: spacing.lg,
+    },
+    moreBtnText: {
+        color: colors.primary,
+        fontWeight: '600',
+        fontSize: 14,
     },
 });

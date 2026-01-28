@@ -33,6 +33,7 @@ import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
 import { captureRef } from 'react-native-view-shot';
 import { useRef } from 'react';
+import { query } from '../lib/database';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CARD_WIDTH = SCREEN_WIDTH - 40;
@@ -112,33 +113,36 @@ const THEMES = {
         partnersGradient: ['rgba(0, 180, 180, 0.4)', 'rgba(0, 200, 200, 0.35)'] as const,
         partnersBorder: 'rgba(0, 217, 204, 0.6)',
     },
-    // Technician Theme - "Titanium" (Black/Grey)
+    // Technician Theme - "Electric Blue" (Deep Blue)
     green: {
-        gradient: ['#000000', '#1c1c1c', '#333333'] as const,
-        primaryColor: '#e0e0e0', // Silver
-        badgeGradient: ['rgba(255, 255, 255, 0.15)', 'rgba(255, 255, 255, 0.05)'] as const,
-        badgeBorder: '#a0a0a0',
-        partnersGradient: ['rgba(255, 255, 255, 0.1)', 'rgba(255, 255, 255, 0.05)'] as const,
-        partnersBorder: 'rgba(255, 255, 255, 0.2)',
+        gradient: ['#0a1929', '#0d3a5c', '#1565c0'] as const,
+        primaryColor: '#64b5f6', // Light Blue
+        badgeGradient: ['rgba(100, 181, 246, 0.25)', 'rgba(100, 181, 246, 0.15)'] as const,
+        badgeBorder: '#42a5f5',
+        partnersGradient: ['rgba(66, 165, 245, 0.3)', 'rgba(66, 165, 245, 0.2)'] as const,
+        partnersBorder: 'rgba(100, 181, 246, 0.5)',
     },
 };
 
 const getRoleLabel = (role?: string) => {
-    switch (role) {
-        case "technician": return { title: "Verified EV Technician" };
-        case "sales": return { title: "Verified EV Sales Consultant" };
-        case "workshop": return { title: "Verified EV Manager" };
-        case "aspirant": return { title: "Verified EV Fresher" };
-        default: return { title: "EV Professional" };
+    // Strip "Verified " if it somehow exists in the database role
+    const cleanRole = (role || "").replace(/^Verified\s+/i, "");
+
+    switch (cleanRole.toLowerCase()) {
+        case "technician": return { title: "Technician" };
+        case "sales": return { title: "Showroom Manager" };
+        case "workshop": return { title: "Workshop Manager" };
+        case "aspirant": return { title: "Fresher" };
+        default: return { title: cleanRole || "Professional" };
     }
 };
 
 const getVerificationProgress = (role?: string, status?: VerificationStatus, step?: number): string => {
-    const required = role === 'technician' ? 2 : 1;
-    if (status === 'verified') return `All ${required} test${required > 1 ? 's' : ''} passed`;
+    const isSingleStepRole = role === 'sales' || role === 'workshop' || role === 'aspirant';
+    if (status === 'verified') return isSingleStepRole ? 'Test passed ✓' : 'All tests passed ✓';
     if (status === 'failed') return 'Retry after 7 days';
-    if (status === 'step1_completed') return '1 test passed, 1 remaining';
-    return `Complete your verification`;
+    if (status === 'step1_completed' && !isSingleStepRole) return '1 test passed, 1 remaining';
+    return 'Complete your verification';
 };
 
 export default function IDCardScreen() {
@@ -148,6 +152,7 @@ export default function IDCardScreen() {
 
     // Order Modal State
     const [showOrderModal, setShowOrderModal] = useState(false);
+    const [showShareModal, setShowShareModal] = useState(false);
     const [orderForm, setOrderForm] = useState({
         fullName: userData?.fullName || '',
         address: '',
@@ -155,6 +160,27 @@ export default function IDCardScreen() {
         pincode: userData?.pincode || '',
         mobile: userData?.phoneNumber || '',
     });
+    const [cardOrdered, setCardOrdered] = useState(false);
+    const [isOrderLoading, setIsOrderLoading] = useState(false);
+
+    // Check if card was already ordered
+    React.useEffect(() => {
+        const checkCardOrderStatus = async () => {
+            if (!userData?.id) return;
+            try {
+                const result = await query<{ card_ordered: boolean }>(
+                    `SELECT card_ordered FROM users WHERE id = $1`,
+                    [userData.id]
+                );
+                if (result.length > 0 && result[0].card_ordered) {
+                    setCardOrdered(true);
+                }
+            } catch (error) {
+                console.error('Error checking order status:', error);
+            }
+        };
+        checkCardOrderStatus();
+    }, [userData?.id]);
 
     // Theme Logic - Decoupled from Verification Status
     const isVerified = userData?.verificationStatus === 'verified' || userData?.verificationStatus === 'approved';
@@ -166,26 +192,8 @@ export default function IDCardScreen() {
     // Both technicians and aspirants use the Titanium (green/black) theme
     // const isTitanium = userData?.role === 'technician' || userData?.role === 'aspirant';
 
-    // Early return if userData is null (during logout) to prevent color flash
-    if (!userData) {
-        return null;
-    }
-
     const theme = isGold ? THEMES.gold : isTeal ? THEMES.teal : THEMES.green;
     const roleInfo = getRoleLabel(userData?.role);
-    const [showShareModal, setShowShareModal] = useState(false);
-
-    // Format Experience Text Compactly
-    const getExperienceLabel = (exp?: string) => {
-        if (!exp || exp === 'fresher') return 'Fresher';
-        if (exp === '0-1') return '0-1 Experienced';
-        if (exp === '1-2') return '1+ Experienced';
-        if (exp === '2-5') return '2+ Experienced';
-        if (exp === '5+') return '5+ Experienced';
-        return `${exp} Experienced`;
-    };
-
-    const experienceText = getExperienceLabel(userData?.experience);
 
     // Experience Partners - Use user's selected brands from registration
     const userBrands = userData?.brands || [];
@@ -211,23 +219,56 @@ export default function IDCardScreen() {
         }));
     }, [userBrands, theme.primaryColor]);
 
+    // Format Experience Text Compactly
+    const getExperienceLabel = (exp?: string) => {
+        if (!exp || exp === 'fresher') return 'Fresher';
+        if (exp === '0-1') return '0-1 Year Experienced';
+        if (exp === '1-2') return '1+ Year Experienced';
+        if (exp === '2-5') return '2+ Year Experienced';
+        if (exp === '5+') return '5+ Year Experienced';
+        return `${exp} Year Experienced`;
+    };
+
+
+    const experienceText = getExperienceLabel(userData?.experience);
+
+    // Show loading/empty state instead of early return (to avoid hooks error)
+    // if (!userData) { return null; } -- REMOVED
+
     const handleLogout = async () => {
         await logout();
         navigation.reset({ index: 0, routes: [{ name: 'RoleSelection' }] });
     };
 
     const handleStartVerification = () => {
-        const step = userData?.verificationStatus === 'step1_completed' ? 2 : 1;
+        // Only technicians have step 2, sales/workshop/aspirant only have step 1
+        const isSingleStepRole = userData?.role === 'sales' || userData?.role === 'workshop' || userData?.role === 'aspirant';
+        const step = (!isSingleStepRole && userData?.verificationStatus === 'step1_completed') ? 2 : 1;
         navigation.navigate('SkillVerification', { step });
     };
 
-    const handleOrderCard = () => {
+    const handleOrderCard = async () => {
         if (!orderForm.fullName || !orderForm.address || !orderForm.pincode || !orderForm.mobile) {
             Alert.alert('Missing Details', 'Please fill all required fields');
             return;
         }
-        Alert.alert('Order Placed!', `Your physical ID Card for Rs 200 will be delivered within 7-10 days.`);
-        setShowOrderModal(false);
+
+        setIsOrderLoading(true);
+        try {
+            // Save order to database
+            await query(
+                `UPDATE users SET card_ordered = true WHERE id = $1`,
+                [userData?.id]
+            );
+            setCardOrdered(true);
+            Alert.alert('Order Placed!', 'Your physical ID Card for Rs 199 will be delivered within 7-10 days.');
+            setShowOrderModal(false);
+        } catch (error) {
+            console.error('Order error:', error);
+            Alert.alert('Error', 'Failed to place order. Please try again.');
+        } finally {
+            setIsOrderLoading(false);
+        }
     };
 
     const handleShare = async (platform?: 'whatsapp' | 'instagram' | 'facebook') => {
@@ -237,37 +278,24 @@ export default function IDCardScreen() {
                 quality: 0.9,
             });
 
-            if (!platform) {
-                const isSharingAvailable = await Sharing.isAvailableAsync();
-                if (!isSharingAvailable) {
-                    Alert.alert('Error', 'Sharing not available on this device');
-                    return;
-                }
-                await Sharing.shareAsync(uri);
+            const isSharingAvailable = await Sharing.isAvailableAsync();
+            if (!isSharingAvailable) {
+                Alert.alert('Error', 'Sharing not available on this device');
                 return;
             }
 
-            // Platform specific sharing (Limited by system, but trying best effort)
-            const message = "I am an EV Certified Professional! Check out my ID card.";
+            // Always use system share sheet - it properly sends image + allows adding message
+            // This works best for WhatsApp, Instagram, Facebook, etc.
+            await Sharing.shareAsync(uri, {
+                mimeType: 'image/png',
+                dialogTitle: 'Share your EV Professional ID Card',
+                UTI: 'public.png', // for iOS
+            });
 
-            if (platform === 'whatsapp') {
-                const url = `whatsapp://send?text=${encodeURIComponent(message)}`;
-                const canOpen = await Linking.canOpenURL(url).catch(() => false);
-
-                if (canOpen) {
-                    await Linking.openURL(url);
-                } else {
-                    // Fallback to system share if WhatsApp is not installed (e.g. Simulator)
-                    await Sharing.shareAsync(uri);
-                }
-            } else {
-                // For others or generic share, use system share sheet which supports image + text best
-                await Sharing.shareAsync(uri);
-            }
             setShowShareModal(false);
         } catch (error) {
             console.error('Share error:', error);
-            Alert.alert('Share', 'Could not share. Please try the general share option.');
+            Alert.alert('Share', 'Could not share. Please try downloading and sharing manually.');
         }
     };
 
@@ -284,16 +312,25 @@ export default function IDCardScreen() {
                 quality: 1.0,
             });
 
-            // For Expo Go on Android/iOS, this is the most reliable way
-            const asset = await MediaLibrary.createAssetAsync(uri);
-            await MediaLibrary.createAlbumAsync('EVeerified', asset, false);
+            // Using createAssetAsync which is more robust in many Expo environments
+            await MediaLibrary.createAssetAsync(uri);
 
-            Alert.alert('Success', 'ID Card saved to your gallery in the EVeerified folder!');
+            Alert.alert('Success', 'ID Card saved to your gallery!');
         } catch (error) {
             console.error('Download error:', error);
-            Alert.alert('Error', 'Could not save the ID card. Please try taking a screenshot.');
+            Alert.alert('Error', 'Could not save. Please take a screenshot manually.');
         }
     };
+
+    if (!userData) {
+        return (
+            <SafeAreaView style={styles.container}>
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <Text style={{ color: '#666' }}>Loading...</Text>
+                </View>
+            </SafeAreaView>
+        );
+    }
 
     return (
         <SafeAreaView style={styles.container}>
@@ -353,58 +390,56 @@ export default function IDCardScreen() {
 
                         {/* User Details */}
                         <View style={styles.userDetails}>
-                            <Text style={styles.cardName}>{userData?.fullName}</Text>
-                            <Text style={styles.cardRole}>{roleInfo.title}</Text>
-                            <Text style={[styles.cardSub, { marginTop: 4, opacity: 0.9 }]}>
+                            <Text style={styles.cardName} numberOfLines={1}>{userData?.fullName}</Text>
+                            <View style={styles.roleBadge}>
+                                <Text style={styles.cardRole}>{roleInfo.title}</Text>
+                            </View>
+                            <Text style={styles.cardSub}>
                                 {experienceText}
                             </Text>
                         </View>
 
-                        {/* Badge */}
-                        <View style={styles.bottomSection}>
-                            <View style={[styles.badgeContainer, { borderColor: isVerified ? theme.badgeBorder : '#FFC107' }]}>
-                                <LinearGradient
-                                    colors={isVerified ? [...theme.badgeGradient] : ['rgba(255, 193, 7, 0.25)', 'rgba(255, 193, 7, 0.15)']}
-                                    style={styles.badgeValues}
-                                >
-                                    {isVerified ? (
-                                        <>
-                                            <Text style={[styles.badgeTitle, { color: theme.primaryColor }]}>VERIFIED</Text>
-                                            <View style={{ flexDirection: 'row', gap: 1 }}>
-                                                {[1, 2, 3, 4, 5].map(i => <Star key={i} size={8} fill="#FFD700" color="#FFD700" />)}
-                                            </View>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Text style={[styles.badgeTitle, { color: '#FFC107', fontSize: 7 }]}>PENDING</Text>
-                                            <Text style={[styles.badgeTitle, { color: '#FFC107', fontSize: 6 }]}>VERIFICATION</Text>
-                                        </>
-                                    )}
-                                </LinearGradient>
-                            </View>
+                        {/* Badge - Absolute Positioned at Top Right */}
+                        <View style={[styles.badgeContainer, { borderColor: isVerified ? theme.badgeBorder : '#FFC107' }]}>
+                            <LinearGradient
+                                colors={isVerified ? [...theme.badgeGradient] : ['rgba(255, 193, 7, 0.25)', 'rgba(255, 193, 7, 0.15)']}
+                                style={styles.badgeValues}
+                            >
+                                {isVerified ? (
+                                    <View style={styles.verifiedSeal}>
+                                        <CheckCircle size={28} color={theme.primaryColor} fill={theme.primaryColor} />
+                                        <View style={styles.sealCheckBg}>
+                                            <CheckCircle size={18} color="#fff" />
+                                        </View>
+                                    </View>
+                                ) : (
+                                    <View style={styles.pendingSeal}>
+                                        <Clock size={24} color="#FFC107" />
+                                    </View>
+                                )}
+                            </LinearGradient>
+                        </View>
 
-                            {/* Experience Partners */}
-                            {/* Experience Partners - Only for experienced roles */}
-                            {userData?.role !== 'aspirant' && (
+                        {/* Spacer to push partners down */}
+                        <View style={{ flex: 1 }} />
+
+                        {/* Experience Partners */}
+                        {userData?.role !== 'aspirant' && (
+                            <View style={styles.partnersWrapper}>
                                 <View style={styles.partnersSection}>
                                     <Text style={styles.partnersLabel}>EXPERIENCE{'\n'}PARTNERS</Text>
 
-                                    <LinearGradient
-                                        colors={[...theme.partnersGradient]}
-                                        start={{ x: 0, y: 0 }}
-                                        end={{ x: 1, y: 0 }}
-                                        style={[styles.partnersDill, { borderColor: theme.partnersBorder }]}
-                                    >
+                                    <View style={styles.partnersDill}>
                                         {experiencePartners.map((p, i) => (
                                             <View key={i} style={{ alignItems: 'center' }}>
                                                 <Text style={{ color: p.color, fontSize: 10, fontWeight: 'bold' }}>{p.name}</Text>
                                                 <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 7 }}>{p.sub}</Text>
                                             </View>
                                         ))}
-                                    </LinearGradient>
+                                    </View>
                                 </View>
-                            )}
-                        </View>
+                            </View>
+                        )}
 
                     </LinearGradient>
                 </View>
@@ -424,7 +459,7 @@ export default function IDCardScreen() {
                     </View>
                     <View style={styles.statusInfo}>
                         <Text style={[styles.statusTitle, { color: isVerified ? '#10b981' : '#f59e0b' }]}>
-                            {isVerified ? 'Verified' : 'Verification Pending'}
+                            {isVerified ? 'Verification Complete' : 'Action Required'}
                         </Text>
                         <Text style={styles.statusSub}>
                             {getVerificationProgress(userData?.role, userData?.verificationStatus, userData?.verificationStep)}
@@ -453,14 +488,46 @@ export default function IDCardScreen() {
                 </View>
 
                 {/* Physical Card Order - Now visible to all professionals */}
-                <TouchableOpacity style={styles.orderBtn} onPress={() => setShowOrderModal(true)}>
+                <TouchableOpacity
+                    style={[styles.orderBtn, cardOrdered && { opacity: 0.7 }]}
+                    onPress={() => !cardOrdered && setShowOrderModal(true)}
+                    disabled={cardOrdered}
+                >
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                        <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(26, 157, 110, 0.1)', justifyContent: 'center', alignItems: 'center' }}>
-                            <Package size={20} color="#1a9d6e" />
+                        <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: cardOrdered ? 'rgba(76, 175, 80, 0.2)' : 'rgba(26, 157, 110, 0.1)', justifyContent: 'center', alignItems: 'center' }}>
+                            {cardOrdered ? <CheckCircle size={20} color="#4CAF50" /> : <Package size={20} color="#1a9d6e" />}
                         </View>
                         <View>
-                            <Text style={{ fontWeight: 'bold', fontSize: 16 }}>Order Physical Card (Rs 200)</Text>
-                            <Text style={{ fontSize: 12, color: colors.muted }}>Get your premium ID card at your door step</Text>
+                            <Text style={{ fontWeight: 'bold', fontSize: 16 }}>
+                                {cardOrdered ? 'Card Already Ordered ✓' : 'Order Physical Card (Rs 199)'}
+                            </Text>
+                            <Text style={{ fontSize: 12, color: colors.muted }}>
+                                {cardOrdered ? 'Your card will be delivered in 7-10 days' : 'Get your premium ID card at your door step'}
+                            </Text>
+                        </View>
+                    </View>
+                    {!cardOrdered && <ChevronRight size={20} color={colors.muted} />}
+                </TouchableOpacity>
+
+                {/* WhatsApp Support Button */}
+                <TouchableOpacity
+                    style={styles.orderBtn}
+                    onPress={() => {
+                        const whatsappNumber = '919473928468';
+                        const message = 'Hi, I need help with EVerified app.';
+                        const url = `whatsapp://send?phone=${whatsappNumber}&text=${encodeURIComponent(message)}`;
+                        Linking.openURL(url).catch(() => {
+                            Alert.alert('WhatsApp not installed', 'Please install WhatsApp to contact support.');
+                        });
+                    }}
+                >
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                        <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(37, 211, 102, 0.15)', justifyContent: 'center', alignItems: 'center' }}>
+                            <MessageCircle size={20} color="#25D366" />
+                        </View>
+                        <View>
+                            <Text style={{ fontWeight: 'bold', fontSize: 16 }}>WhatsApp Support</Text>
+                            <Text style={{ fontSize: 12, color: colors.muted }}>Get help instantly</Text>
                         </View>
                     </View>
                     <ChevronRight size={20} color={colors.muted} />
@@ -512,7 +579,7 @@ export default function IDCardScreen() {
                 <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
                         <View style={styles.modalHeader}>
-                            <Text style={styles.modalTitle}>Order Physical ID Card (Rs 200)</Text>
+                            <Text style={styles.modalTitle}>Order Physical ID Card (Rs 199)</Text>
                             <TouchableOpacity onPress={() => setShowOrderModal(false)}>
                                 <X size={24} color={colors.muted} />
                             </TouchableOpacity>
@@ -612,39 +679,64 @@ const styles = StyleSheet.create({
     miniLogoText: { color: '#fff', fontSize: 14, fontWeight: 'bold' },
 
     // User Details
-    userDetails: { marginBottom: 'auto' },
-    cardName: { color: '#fff', fontSize: 24, fontWeight: 'bold', lineHeight: 28 },
-    cardRole: { color: '#fff', fontSize: 12, fontWeight: '600' },
-    cardSub: { color: 'rgba(255,255,255,0.85)', fontSize: 10, marginTop: 2 },
+    userDetails: { marginBottom: 20 },
+    cardName: { color: '#fff', fontSize: 22, fontWeight: 'bold', letterSpacing: 0.5 },
+    roleBadge: {
+        backgroundColor: 'rgba(255,255,255,0.15)',
+        alignSelf: 'flex-start',
+        paddingHorizontal: 8,
+        paddingVertical: 2,
+        borderRadius: 4,
+        marginTop: 4,
+    },
+    cardRole: { color: '#fff', fontSize: 11, fontWeight: '700' },
+    cardSub: { color: 'rgba(255,255,255,0.8)', fontSize: 10, marginTop: 4 },
 
     // Bottom Section
     bottomSection: { marginTop: 'auto', gap: 12 },
 
     badgeContainer: {
-        width: 70,
-        height: 70,
-        borderRadius: 35,
-        borderWidth: 2.5,
-        overflow: 'hidden'
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        borderWidth: 1.5,
+        overflow: 'hidden',
+        position: 'absolute',
+        top: 15,
+        right: 15,
+        zIndex: 10,
     },
     badgeValues: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-    badgeTitle: { fontSize: 8.5, fontWeight: 'bold', marginBottom: 2 },
+    verifiedSeal: { alignItems: 'center', justifyContent: 'center' },
+    sealCheckBg: {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: [{ translateX: -9 }, { translateY: -9 }],
+        backgroundColor: 'rgba(255,255,255,0.2)',
+        borderRadius: 10,
+    },
+    pendingSeal: { alignItems: 'center', justifyContent: 'center' },
 
     // Partners
-    partnersSection: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-    partnersLabel: { color: 'rgba(255,255,255,0.75)', fontSize: 7, fontWeight: '700', lineHeight: 9 },
+    partnersWrapper: {
+        marginTop: 10,
+    },
+    partnersSection: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        backgroundColor: 'rgba(0,0,0,0.05)',
+        borderRadius: 12,
+        padding: 8,
+    },
+    partnersLabel: { color: 'rgba(255,255,255,0.7)', fontSize: 7, fontWeight: '700', lineHeight: 9 },
     partnersDill: {
         flex: 1,
         flexDirection: 'row',
         justifyContent: 'space-around',
         alignItems: 'center',
-        paddingVertical: 6,
-        paddingHorizontal: 12,
-        borderTopLeftRadius: 20,
-        borderBottomLeftRadius: 20,
-        borderWidth: 1.5,
-        borderRightWidth: 0,
-        marginRight: -20, // Extend to edge
+        gap: 10,
     },
 
     // Status Card

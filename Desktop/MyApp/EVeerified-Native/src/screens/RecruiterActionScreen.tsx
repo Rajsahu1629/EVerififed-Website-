@@ -29,7 +29,13 @@ const RecruiterActionScreen: React.FC = () => {
             <View style={styles.header}>
                 <TouchableOpacity
                     style={styles.backButton}
-                    onPress={() => navigation.goBack()}
+                    onPress={() => {
+                        if (navigation.canGoBack()) {
+                            navigation.goBack();
+                        } else {
+                            navigation.navigate('RoleSelection');
+                        }
+                    }}
                 >
                     <ArrowLeft size={24} color={colors.primaryForeground} />
                 </TouchableOpacity>

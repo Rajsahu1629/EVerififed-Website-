@@ -40,10 +40,10 @@ export const translations: Translations = {
     selectRole: { hi: 'अपनी भूमिका चुनें', en: 'Select your role', mr: 'तुमची भूमिका निवडा', kn: 'ನಿಮ್ಮ ಪಾತ್ರವನ್ನು ಆಯ್ಕೆಮಾಡಿ', te: 'మీ పాత్రను ఎంచుకోండి', or: 'ଆପଣଙ୍କର ଭୂମିକା ଚୟନ କରନ୍ତୁ' },
     evTechnician: { hi: 'EV तकनीशियन', en: 'EV Technician', mr: 'EV तंत्रज्ञ', kn: 'EV ತಂತ್ರಜ್ಞ', te: 'EV సాంకేతిక నిపుణుడు', or: 'EV ଟେକ୍ନିସିଆନ୍' },
     evTechnicianDesc: { hi: 'इलेक्ट्रिक वाहनों की मरम्मत और रखरखाव', en: 'Repair and maintain electric vehicles', mr: 'इलेक्ट्रिक वाहनांची दुरुस्ती आणि देखभाल', kn: 'ಎಲೆಕ್ಟ್ರಿಕ್ ವಾಹನಗಳ ದುರಸ್ತಿ ಮತ್ತು ನಿರ್ವಹಣೆ', te: 'ఎలక్ట్రిక్ వాహనాల మరమ్మత్తు మరియు నిర్వహణ', or: 'ଇଲେକ୍ଟ୍ରିକ୍ ଯାନଗୁଡିକର ମରାମତି ଏବଂ ରକ୍ଷଣାବେକ୍ଷଣ' },
-    evSalesManager: { hi: 'EV सेल्स मैनेजर', en: 'EV Sales Manager', mr: 'EV विक्री व्यवस्थापक', kn: 'EV ಮಾರಾಟ ವ್ಯವಸ್ಥಾಪಕ', te: 'EV సేల్స్ మేనేజర్', or: 'EV ବିକ୍ରୟ ପରିଚାଳକ' },
-    evSalesManagerDesc: { hi: 'इलेक्ट्रिक वाहनों की बिक्री और ग्राहक सेवा', en: 'Sales and customer service for EVs', mr: 'इलेक्ट्रिक वाहनांची विक्री आणि ग्राहक सेवा', kn: 'ಇವಿಗಳ ಮಾರಾಟ ಮತ್ತು ಗ್ರಾಹಕ ಸೇವೆ', te: 'EV ల కోసం సేల్స్ మరియు కస్టమర్ సర్వీస్', or: 'ଇଭି ପାଇଁ ବିକ୍ରୟ ଏବଂ ଗ୍ରାହକ ସେବା' },
-    evWorkshopManager: { hi: 'EV शोरूम मैनेजर', en: 'EV Showroom Manager', mr: 'EV शोरूम व्यवस्थापक', kn: 'EV ಶೋರೂಮ್ ವ್ಯವಸ್ಥಾಪಕ', te: 'EV షోరూమ్ మేనేజర్', or: 'EV ଶୋରୁମ୍ ମ୍ୟାନେଜର୍' },
-    evWorkshopManagerDesc: { hi: 'शोरूम का प्रबंधन और टीम नेतृत्व', en: 'Showroom management and team leadership', mr: 'शोरूम व्यवस्थापन आणि टीम नेतृत्व', kn: 'ಶೋರೂಮ್ ನಿರ್ವಹಣೆ ಮತ್ತು ತಂಡ ನಾಯಕತ್ವ', te: 'షోరూమ్ నిర్వహణ మరియు టీమ్ నాయకత్వం', or: 'ଶୋରୁମ୍ ପରିଚାଳନା ଏବଂ ଦଳ ନେତୃତ୍ୱ' },
+    evShowroomManager: { hi: 'EV शोरूम मैनेजर', en: 'EV Showroom Manager', mr: 'EV शोरूम व्यवस्थापक', kn: 'EV ಶೋರೂಮ್ ವ್ಯವಸ್ಥಾಪಕ', te: 'EV షోరూమ్ మేనేజర్', or: 'EV ଶୋରୁମ୍ ମ୍ୟାନେଜର୍' },
+    evShowroomManagerDesc: { hi: 'शोरूम का प्रबंधन और ग्राहक सेवा', en: 'Showroom management and customer service', mr: 'शोरूम व्यवस्थापन आणि ग्राहक सेवा', kn: 'ಶೋರೂಮ್ ನಿರ್ವಹಣೆ ಮತ್ತು ಗ್ರಾಹಕ ಸೇವೆ', te: 'షోరూమ్ నిర్వహణ మరియు కస్టమర్ సర్వీస్', or: 'ଶୋରୁମ୍ ପରିଚାଳନା ଏବଂ ଗ୍ରାହକ ସେବା' },
+    evWorkshopManager: { hi: 'EV वर्कशॉप मैनेजर', en: 'EV Workshop Manager', mr: 'EV कार्यशाळा व्यवस्थापक', kn: 'EV ಕಾರ್ಯಾಗಾರ ವ್ಯವಸ್ಥಾಪಕ', te: 'EV వర్క్‌షాప్ మేనేజర్', or: 'EV ୱର୍କସପ୍ ମ୍ୟାନେଜର୍' },
+    evWorkshopManagerDesc: { hi: 'वर्कशॉप का प्रबंधन और टीम नेतृत्व', en: 'Workshop management and team leadership', mr: 'कार्यशाळा व्यवस्थापन आणि टीम नेतृत्व', kn: 'ಕಾರ್ಯಾγಾರ ನಿರ್ವಹಣೆ ಮತ್ತು ತಂಡ ನಾಯಕತ್ವ', te: 'వర్క్‌షాప్ నిర్వహణ మరియు టీమ్ నాయకత్వం', or: 'ୱର୍କସପ୍ ପରିଚାଳନା ଏବଂ ଦଳ ନେତୃତ୍ୱ' },
     evRecruiter: { hi: 'EV रिक्रूटर', en: 'EV Recruiter', mr: 'EV नियोक्ता', kn: 'EV ನೇಮಕಾತಿದಾರ', te: 'EV రిక్రూటర్', or: 'EV ନିଯୁକ୍ତିକର୍ତ୍ତା' },
     evRecruiterDesc: { hi: 'EV पेशेवरों की भर्ती करें', en: 'Hire EV professionals', mr: 'EV व्यावसायिकांची भरती करा', kn: 'EV ವೃತ್ತಿಪರರನ್ನು ನೇಮಿಸಿ', te: 'EV నిపుణులను నియమించండి', or: 'EV ପେଶାଦାରମାନଙ୍କୁ ନିଯୁକ୍ତ କରନ୍ତୁ' },
     evAspirant: { hi: 'EV फ्रेशर', en: 'EV Fresher', mr: 'EV फ्रेशर', kn: 'EV ಫ್ರೆಶರ್', te: 'EV ఫ్రెషర్', or: 'EV ଫ୍ରେଶର୍' },
@@ -128,6 +128,8 @@ export const translations: Translations = {
     passwordMismatch: { hi: 'पासवर्ड मेल नहीं खाते', en: 'Passwords do not match' },
     passwordLength: { hi: 'पासवर्ड कम से कम 6 अक्षरों का होना चाहिए', en: 'Password must be at least 6 characters' },
     selectAtLeastOne: { hi: 'कम से कम एक विकल्प चुनें', en: 'Select at least one option' },
+    termsAndConditions: { hi: 'मैं गोपनीयता नीति और शर्तों से सहमत हूं', en: 'I agree to the Privacy Policy & Terms' },
+    termsRequired: { hi: 'कृपया शर्तों से सहमत हों', en: 'Please agree to the terms' },
 
     // Language
     switchLanguage: { hi: 'English में देखें', en: 'हिंदी में देखें' },
@@ -136,6 +138,9 @@ export const translations: Translations = {
     selectState: { hi: 'राज्य चुनें', en: 'Select State' },
     selectCity: { hi: 'शहर चुनें', en: 'Select City' },
     selectExperience: { hi: 'अनुभव चुनें', en: 'Select Experience' },
+
+    currentSalary: { hi: 'वर्तमान मासिक वेतन', en: 'Current Monthly Salary' },
+    selectSalary: { hi: 'वेतन सीमा चुनें', en: 'Select Salary Range' },
 
     // Recruiter
     recruiterRegistration: { hi: 'रिक्रूटर पंजीकरण', en: 'Recruiter Registration' },

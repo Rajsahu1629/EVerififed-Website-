@@ -52,10 +52,32 @@ const RecruiterLoginScreen: React.FC = () => {
         return Object.keys(newErrors).length === 0;
     };
 
+    // Admin credentials
+    const ADMIN_PHONE = '9473928468';
+    const ADMIN_PASSWORD = 'Rajsahu@2000';
+
     const handleLogin = async () => {
         if (!validate()) return;
 
         setIsLoading(true);
+
+        // Trim inputs to remove accidental spaces
+        const trimmedPhone = phoneNumber.trim();
+        const trimmedPassword = password.trim();
+
+        console.log('Login attempt:', { phone: trimmedPhone, passwordLength: trimmedPassword.length });
+
+        // Check for admin login
+        if (trimmedPhone === ADMIN_PHONE && trimmedPassword === ADMIN_PASSWORD) {
+            console.log('Admin login successful!');
+            navigation.reset({
+                index: 0,
+                routes: [{ name: 'AdminJobApproval' }],
+            });
+            setIsLoading(false);
+            return;
+        }
+
         try {
             const recruiters = await query<any>(
                 `SELECT * FROM recruiters WHERE phone_number = $1 AND password = $2`,
@@ -102,7 +124,13 @@ const RecruiterLoginScreen: React.FC = () => {
                 <View style={styles.header}>
                     <TouchableOpacity
                         style={styles.backButton}
-                        onPress={() => navigation.goBack()}
+                        onPress={() => {
+                            if (navigation.canGoBack()) {
+                                navigation.goBack();
+                            } else {
+                                navigation.navigate('RecruiterAction');
+                            }
+                        }}
                     >
                         <ArrowLeft size={24} color={colors.primaryForeground} />
                     </TouchableOpacity>
