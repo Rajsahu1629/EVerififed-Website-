@@ -38,21 +38,19 @@ const PostJobPage: React.FC = () => {
         setLoading(true);
         try {
             await api.createJob({
-                recruiter_id: recruiter.id,
+                recruiterId: recruiter.id,
                 brand: formData.brand,
-                role_required: formData.roleRequired,
-                number_of_people: formData.numberOfPeople,
+                roleRequired: formData.roleRequired,
+                numberOfPeople: formData.numberOfPeople,
                 experience: formData.experience,
-                salary_min: parseInt(formData.salaryMin),
-                salary_max: parseInt(formData.salaryMax),
+                salaryMin: parseInt(formData.salaryMin),
+                salaryMax: parseInt(formData.salaryMax),
                 city: formData.city,
                 pincode: formData.pincode,
-                has_incentive: formData.hasIncentive,
-                stay_provided: formData.stayProvided,
+                hasIncentive: formData.hasIncentive,
+                stayProvided: formData.stayProvided,
                 urgency: formData.urgency,
-                job_description: formData.jobDescription,
-                status: 'pending',
-                is_active: true,
+                jobDescription: formData.jobDescription,
             });
             alert('Job posted successfully! Awaiting admin approval.');
             navigate('/recruiter-dashboard');

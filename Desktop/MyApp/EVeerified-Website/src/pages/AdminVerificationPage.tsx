@@ -4,7 +4,7 @@ import { api } from '../services/api';
 import type { User } from '../services/api';
 
 const AdminVerificationPage: React.FC = () => {
-    const { t } = useLanguage();
+    const { } = useLanguage();
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
 

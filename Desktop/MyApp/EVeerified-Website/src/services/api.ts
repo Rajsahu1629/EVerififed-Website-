@@ -1,11 +1,7 @@
 // API Service - Backend Integration
 const API_BASE_URL = 'http://13.53.140.88:3001/api';
 
-interface ApiResponse<T = unknown> {
-    success?: boolean;
-    error?: string;
-    [key: string]: T | boolean | string | undefined;
-}
+
 
 class ApiService {
     private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
@@ -98,7 +94,7 @@ class ApiService {
         return this.request<Job[]>('/jobs');
     }
 
-    async createJob(jobData: Partial<Job>) {
+    async createJob(jobData: CreateJobPayload) {
         return this.request<{ success: boolean; job: Job }>('/jobs', {
             method: 'POST',
             body: JSON.stringify(jobData),
@@ -210,6 +206,7 @@ export interface User {
     is_admin_verified?: boolean;
     prior_knowledge?: string;
     current_salary?: string;
+    password?: string;
 }
 
 export interface Recruiter {
@@ -220,6 +217,28 @@ export interface Recruiter {
     entity_type?: string;
     phoneNumber?: string;
     phone_number?: string;
+    password?: string;
+}
+
+
+export interface CreateJobPayload {
+    recruiterId: number;
+    brand: string;
+    roleRequired: string;
+    numberOfPeople: string;
+    experience: string;
+    salaryMin: number;
+    salaryMax: number;
+    city: string;
+    pincode: string;
+    hasIncentive: boolean;
+    stayProvided: boolean;
+    urgency: string;
+    jobDescription: string;
+    status?: string;
+    isActive?: boolean;
+    vehicleCategory?: string;
+    trainingRole?: string;
 }
 
 export interface Job {
