@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="EVerified - Trusted Platform for EV & BS6 Workforce. Connect verified technicians with recruiters in the electric vehicle and BS6 automobile bike segment.">
+    <meta name="keywords" content="EV technician, BS6, electric vehicle, bike technician, job placement, verification, automobile">
+    <title>EVerified - EV & BS6 Workforce Platform</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+    
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="/css/index.css">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo" data-link="/">
+                    EVerified
+                </div>
+                <nav>
+                    <ul class="nav-links">
+                        <li><a href="/" data-link data-translate="jobs">Jobs</a></li>
+                        <li><a href="/auth" data-link data-translate="login">Login</a></li>
+                        <li>
+                            <button class="btn btn-sm btn-outline" onclick="window.language.toggleLanguage()" id="langToggle">
+                                हिंदी में देखें
+                            </button>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main id="app">
+        <!-- Hero Section (Landing Page) -->
+        <section class="hero">
+            <div class="container">
+                <h1 data-translate="appName">EVerified</h1>
+                <p data-translate="tagline">Trusted Platform for EV & BS6 Workforce</p>
+                
+                <div class="flex justify-center gap-4 flex-wrap">
+                    <a href="/auth?type=user" data-link class="btn btn-primary btn-lg">
+                        <span data-translate="login">Login</span> / <span data-translate="register">Register</span>
+                    </a>
+                    <a href="/jobs" data-link class="btn btn-secondary btn-lg">
+                        <span data-translate="jobs">Browse Jobs</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="container" style="padding: 60px 0;">
+            <h2 class="text-center mb-6">Platform Features</h2>
+            
+            <div class="grid grid-3">
+                <div class="card text-center">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">✓</div>
+                    <h3>Skill Verification</h3>
+                    <p class="text-gray">Get verified through EV-specific skill tests and earn credentials</p>
+                </div>
+                
+                <div class="card text-center">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">💼</div>
+                    <h3>Job Opportunities</h3>
+                    <p class="text-gray">Access exclusive jobs from verified recruiters and companies</p>
+                </div>
+                
+                <div class="card text-center">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">🎯</div>
+                    <h3>Career Growth</h3>
+                    <p class="text-gray">Grow your career in the booming EV and BS6 automobile sector</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Section -->
+        <section class="container" style="padding: 60px 0;">
+            <div class="grid grid-3">
+                <div class="stats-card">
+                    <div class="stats-card-value">1000+</div>
+                    <div class="stats-card-label">Verified Technicians</div>
+                </div>
+                
+                <div class="stats-card">
+                    <div class="stats-card-value">500+</div>
+                    <div class="stats-card-label">Job Opportunities</div>
+                </div>
+                
+                <div class="stats-card">
+                    <div class="stats-card-value">100+</div>
+                    <div class="stats-card-label">Trusted Recruiters</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="container" style="padding: 60px 0;">
+            <div class="glass-card text-center">
+                <h2>Ready to Get Started?</h2>
+                <p class="text-gray" style="margin: 20px 0;">Join thousands of verified EV professionals and find your dream job today.</p>
+                <a href="/auth" data-link class="btn btn-primary btn-lg">Get Verified Now</a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer style="background: rgba(10, 14, 39, 0.8); padding: 40px 0; margin-top: 80px;">
+        <div class="container text-center">
+            <div class="logo" style="margin-bottom: 20px;">EVerified</div>
+            <p class="text-gray">Empowering EV & BS6 workforce with verified skills and opportunities</p>
+            <p class="text-sm text-gray" style="margin-top: 20px;">© 2026 EVerified. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="/js/api.js"></script>
+    <script src="/js/utils.js"></script>
+    <script src="/js/language.js"></script>
+    <script src="/js/app.js"></script>
+    
+    <script>
+        // Update language toggle button text
+        function updateLangToggle() {
+            const btn = document.getElementById('langToggle');
+            if (btn) {
+                btn.textContent = window.language.getLanguage() === 'en' ? 'हिंदी में देखें' : 'View in English';
+            }
+        }
+        
+        // Subscribe to language changes
+        if (window.language) {
+            window.language.subscribe(updateLangToggle);
+            updateLangToggle();
+        }
+    </script>
+</body>
+</html>

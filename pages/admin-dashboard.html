@@ -1,0 +1,61 @@
+<!-- Admin Dashboard -->
+<div class="container" style="padding: 60px 20px;">
+    <div class="flex justify-between items-center mb-6">
+        <h1 data-translate="adminDashboard">Admin Dashboard</h1>
+        <button class="btn btn-secondary" onclick="app.logout()">
+            <span data-translate="logout">Logout</span>
+        </button>
+    </div>
+
+    <!-- Stats Overview -->
+    <div class="grid grid-4 mb-6">
+        <div class="stats-card">
+            <div class="stats-card-value" id="totalCandidates">0</div>
+            <div class="stats-card-label" data-translate="totalCandidates">Total Candidates</div>
+        </div>
+
+        <div class="stats-card">
+            <div class="stats-card-value" id="verifiedCandidates">0</div>
+            <div class="stats-card-label" data-translate="verifiedCandidates">Verified Candidates</div>
+        </div>
+
+        <div class="stats-card">
+            <div class="stats-card-value" id="totalRecruiters">0</div>
+            <div class="stats-card-label" data-translate="totalRecruiters">Total Recruiters</div>
+        </div>
+
+        <div class="stats-card">
+            <div class="stats-card-value" id="pendingJobsCount">0</div>
+            <div class="stats-card-label" data-translate="pendingJobs">Pending Jobs</div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <h2 class="mb-4">Quick Actions</h2>
+    <div class="grid grid-3">
+        <a href="/admin-job-approval" data-link class="card pointer">
+            <h3>📝 Job Approvals</h3>
+            <p class="text-gray">Review and approve job posts</p>
+        </a>
+
+        <a href="/admin-verification" data-link class="card pointer">
+            <h3>✓ User Verification</h3>
+            <p class="text-gray">Verify user credentials</p>
+        </a>
+
+        <a href="/candidate-search" data-link class="card pointer">
+            <h3>🔍 Search Candidates</h3>
+            <p class="text-gray">Find verified professionals</p>
+        </a>
+    </div>
+</div>
+
+<script>
+    // Load admin stats
+    api.getAdminStats().then(stats => {
+        document.getElementById('totalCandidates').textContent = stats.totalCandidates || 0;
+        document.getElementById('verifiedCandidates').textContent = stats.verifiedCandidates || 0;
+        document.getElementById('totalRecruiters').textContent = stats.totalRecruiters || 0;
+        document.getElementById('pendingJobsCount').textContent = stats.pendingJobs || 0;
+    }).catch(console.error);
+</script>

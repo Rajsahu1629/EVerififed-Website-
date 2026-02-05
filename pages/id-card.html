@@ -1,0 +1,101 @@
+<!-- ID Card Page -->
+<div class="container-sm" style="padding: 60px 20px;">
+    <h1 class="text-center mb-6" data-translate="idCard">Digital ID Card</h1>
+
+    <div id="idCardDisplay" style="max-width: 400px; margin: 0 auto;">
+        <!-- ID Card Design -->
+        <div class="glass-card"
+            style="background: linear-gradient(135deg, #00e676 0%, #00b8d4 100%); color: #0a0e27; position: relative;">
+            <div class="text-center mb-4">
+                <div class="logo" style="color: #0a0e27; font-size: 1.5rem;">EVerified</div>
+                <div style="font-size: 0.75rem; opacity: 0.8;">VERIFIED PROFESSIONAL</div>
+            </div>
+
+            <div class="text-center mb-4">
+                <div
+                    style="width: 100px; height: 100px; margin: 0 auto; background: rgba(10, 14, 39, 0.2); border-radius: 50%; display: flex; align-items: center; justify-center; font-size: 3rem;">
+                    👤
+                </div>
+            </div>
+
+            <div class="text-center mb-4">
+                <h2 style="margin-bottom: 0.5rem;" id="cardName">--</h2>
+                <div style="opacity: 0.8;" id="cardRole">--</div>
+            </div>
+
+            <div style="background: rgba(10, 14, 39, 0.2); padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+                <div class="flex justify-between mb-2">
+                    <span>Phone:</span>
+                    <strong id="cardPhone">--</strong>
+                </div>
+                <div class="flex justify-between mb-2">
+                    <span>Experience:</span>
+                    <strong id="cardExperience">--</strong>
+                </div>
+                <div class="flex justify-between mb-2">
+                    <span>Domain:</span>
+                    <strong id="cardDomain">--</strong>
+                </div>
+                <div class="flex justify-between">
+                    <span>Status:</span>
+                    <strong id="cardStatus">--</strong>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <div style="background: white; padding: 0.5rem; border-radius: 0.5rem; display: inline-block;">
+                    <img id="qrCode" src="" alt="QR Code" style="width: 100px; height: 100px;">
+                </div>
+                <div style="font-size: 0.75rem; margin-top: 0.5rem; opacity: 0.8;">Scan to verify</div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex gap-3 mt-6">
+            <button class="btn btn-primary" onclick="downloadCard()" style="flex: 1;">
+                <span data-translate="download">Download</span>
+            </button>
+            <button class="btn btn-secondary" onclick="shareCard()">
+                <span data-translate="share">Share</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const user = app.currentUser;
+    if (user) {
+        document.getElementById('cardName').textContent = user.fullName || user.full_name || 'User Name';
+        document.getElementById('cardRole').textContent = user.role || 'Technician';
+        document.getElementById('cardPhone').textContent = utils.formatPhoneDisplay(user.phoneNumber || user.phone_number);
+        document.getElementById('cardExperience').textContent = user.experience || 'Not specified';
+        document.getElementById('cardDomain').textContent = user.domain || 'EV';
+
+        const statusText = utils.getVerificationStatusText(user.verificationStatus, language.getLanguage());
+        document.getElementById('cardStatus').textContent = statusText;
+
+        // Generate QR Code
+        const qrData = {
+            id: user.id,
+            name: user.fullName || user.full_name,
+            phone: user.phoneNumber || user.phone_number,
+            status: user.verificationStatus,
+            verified: utils.isUserVerified(user)
+        };
+        document.getElementById('qrCode').src = utils.generateQRCode(qrData);
+    }
+
+    function downloadCard() {
+        utils.showToast('Download feature coming soon!', 'info');
+    }
+
+    function shareCard() {
+        const text = `Check out my EVerified ID Card!\nName: ${user.fullName}\nRole: ${user.role}\nStatus: ${user.verificationStatus}`;
+
+        if (navigator.share) {
+            navigator.share({ title: 'EVerified ID', text });
+        } else {
+            utils.copyToClipboard(text);
+        }
+    }
+</script>

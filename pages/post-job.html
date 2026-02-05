@@ -1,0 +1,144 @@
+<!-- Post Job Page -->
+<div class="container-sm" style="padding: 60px 20px;">
+    <div class="glass-card">
+        <h1 class="mb-6" data-translate="postNewJob">Post New Job</h1>
+
+        <form id="jobPostForm">
+            <div class="form-group">
+                <label class="form-label">Brand *</label>
+                <input type="text" class="form-control" id="brand" required placeholder="e.g., Bajaj, Ola, Ather">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" data-translate="roleRequired">Role Required *</label>
+                <select class="form-control" id="roleRequired" required>
+                    <option value="">Select Role</option>
+                    <option value="EV Technician">EV Technician</option>
+                    <option value="BS6 Technician">BS6 Technician</option>
+                    <option value="Workshop Manager">Workshop Manager</option>
+                    <option value="Showroom Manager">Showroom Manager</option>
+                    <option value="Sales Executive">Sales Executive</option>
+                </select>
+            </div>
+
+            <div class="grid grid-2 gap-4">
+                <div class="form-group">
+                    <label class="form-label" data-translate="numberOfPeople">Number of People *</label>
+                    <input type="number" class="form-control" id="numberOfPeople" min="1" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" data-translate="experienceRequired">Experience *</label>
+                    <select class="form-control" id="experience" required>
+                        <option value="Fresher">Fresher</option>
+                        <option value="1 year">1 Year</option>
+                        <option value="2 years">2 Years</option>
+                        <option value="3 years">3 Years</option>
+                        <option value="5+ years">5+ Years</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-2 gap-4">
+                <div class="form-group">
+                    <label class="form-label">Minimum Salary (₹/month) *</label>
+                    <input type="number" class="form-control" id="salaryMin" min="0" step="1000" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Maximum Salary (₹/month) *</label>
+                    <input type="number" class="form-control" id="salaryMax" min="0" step="1000" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" data-translate="city">City *</label>
+                <input type="text" class="form-control" id="city" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" data-translate="pincode">Pincode *</label>
+                <input type="text" class="form-control" id="pincode" maxlength="6" required>
+            </div>
+
+            <div class="form-group">
+                <label class="flex items-center gap-2">
+                    <input type="checkbox" id="hasIncentive">
+                    <span>Incentive Available</span>
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label class="flex items-center gap-2">
+                    <input type="checkbox" id="stayProvided">
+                    <span>Stay Provided</span>
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" data-translate="urgency">Urgency</label>
+                <select class="form-control" id="urgency">
+                    <option value="immediate">Immediate</option>
+                    <option value="within_7_days" selected>Within 7 Days</option>
+                    <option value="within_30_days">Within 30 Days</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" data-translate="jobDescription">Job Description</label>
+                <textarea class="form-control" id="jobDescription" rows="4"
+                    placeholder="Describe the role and requirements..."></textarea>
+            </div>
+
+            <div class="flex gap-3">
+                <button type="button" onclick="app.navigate('/recruiter-dashboard')" class="btn btn-secondary">
+                    <span data-translate="cancel">Cancel</span>
+                </button>
+                <button type="submit" class="btn btn-primary" style="flex: 1;">
+                    <span data-translate="submitJob">Post Job</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.getElementById('jobPostForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const recruiter = app.currentRecruiter;
+        if (!recruiter) {
+            utils.showToast('Please login as recruiter', 'error');
+            return;
+        }
+
+        const jobData = {
+            recruiterId: recruiter.id,
+            brand: document.getElementById('brand').value,
+            roleRequired: document.getElementById('roleRequired').value,
+            numberOfPeople: document.getElementById('numberOfPeople').value,
+            experience: document.getElementById('experience').value,
+            salaryMin: parseInt(document.getElementById('salaryMin').value),
+            salaryMax: parseInt(document.getElementById('salaryMax').value),
+            city: document.getElementById('city').value,
+            pincode: document.getElementById('pincode').value,
+            hasIncentive: document.getElementById('hasIncentive').checked,
+            stayProvided: document.getElementById('stayProvided').checked,
+            urgency: document.getElementById('urgency').value,
+            jobDescription: document.getElementById('jobDescription').value,
+            vehicleCategory: null,
+            trainingRole: null
+        };
+
+        utils.showLoading();
+        try {
+            await api.createJob(jobData);
+            utils.showToast('Job posted successfully! Awaiting admin approval.', 'success');
+            app.navigate('/recruiter-dashboard');
+        } catch (error) {
+            utils.showToast(error.message || 'Failed to post job', 'error');
+        } finally {
+            utils.hideLoading();
+        }
+    });
+</script>

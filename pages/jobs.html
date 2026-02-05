@@ -1,0 +1,148 @@
+<!-- Jobs Listing Page -->
+<div class="container" style="padding: 60px 20px;">
+    <h1 class="mb-6" data-translate="jobs">Available Jobs</h1>
+
+    <!-- Filters Row -->
+    <div class="card mb-6">
+        <div class="grid grid-4 gap-3">
+            <input type="text" class="form-control" placeholder="Search by brand or role" id="searchInput">
+            <select class="form-control" id="experienceFilter">
+                <option value="">All Experience</option>
+                <option value="Fresher">Fresher</option>
+                <option value="1 year">1 Year</option>
+                <option value="2 years">2 Years</option>
+                <option value="3 years">3+ Years</option>
+            </select>
+            <select class="form-control" id="cityFilter">
+                <option value="">All Cities</option>
+            </select>
+            <button class="btn btn-primary" onclick="applyFilters()">
+                <span data-translate="filter">Filter</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Jobs Grid -->
+    <div id="jobsGrid" class="grid grid-2"></div>
+
+    <div id="noJobs" class="text-center hidden" style="padding: 60px 0;">
+        <h3 class="text-gray" data-translate="noJobsYetMessage">No jobs available yet</h3>
+    </div>
+</div>
+
+<script>
+    let allJobs = [];
+    let appliedJobIds = [];
+
+    async function loadJobs() {
+        utils.showLoading();
+        try {
+            allJobs = await api.getJobs();
+
+            // Load applied jobs if user is logged in
+            if (app.currentUser) {
+                appliedJobIds = await api.getAppliedJobIds(app.currentUser.id);
+            }
+
+            displayJobs(allJobs);
+
+            // Populate city filter
+            const cities = [...new Set(allJobs.map(j => j.city))].filter(Boolean);
+            const cityFilter = document.getElementById('cityFilter');
+            cities.forEach(city => {
+                const option = document.createElement('option');
+                option.value = city;
+                option.textContent = city;
+                cityFilter.appendChild(option);
+            });
+        } catch (error) {
+            console.error('Error loading jobs:', error);
+            utils.showToast('Failed to load jobs', 'error');
+        } finally {
+            utils.hideLoading();
+        }
+    }
+
+    function displayJobs(jobs) {
+        const grid = document.getElementById('jobsGrid');
+        const noJobs = document.getElementById('noJobs');
+
+        if (jobs.length === 0) {
+            grid.innerHTML = '';
+            noJobs.classList.remove('hidden');
+            return;
+        }
+
+        noJobs.classList.add('hidden');
+        grid.innerHTML = jobs.map(job => `
+        <div class="card">
+            <div class="card-header">
+                <h3>${job.brand || 'Company'}</h3>
+                <p class="text-gray text-sm">${job.company_name || ''}</p>
+            </div>
+            <div class="card-body">
+                <div class="mb-2"><strong>Role:</strong> ${job.role_required}</div>
+                <div class="mb-2"><strong>Experience:</strong> ${job.experience || 'Not specified'}</div>
+                <div class="mb-2"><strong>Salary:</strong> ${utils.formatCurrency(job.salary_min)} - ${utils.formatCurrency(job.salary_max)}</div>
+                <div class="mb-2"><strong>Location:</strong> ${job.city}, ${job.pincode || ''}</div>
+                ${job.has_incentive ? '<span class="badge badge-success">Incentive Available</span>' : ''}
+                ${job.stay_provided ? '<span class="badge badge-info">Stay Provided</span>' : ''}
+            </div>
+            <div class="card-footer">
+                ${appliedJobIds.includes(job.id) ?
+                '<button class="btn btn-secondary" disabled>Applied ✓</button>' :
+                `<button class="btn btn-primary" onclick="applyToJob(${job.id})">Apply Now</button>`
+            }
+            </div>
+        </div>
+    `).join('');
+    }
+
+    function applyFilters() {
+        const search = document.getElementById('searchInput').value.toLowerCase();
+        const experience = document.getElementById('experienceFilter').value;
+        const city = document.getElementById('cityFilter').value;
+
+        let filtered = allJobs;
+
+        if (search) {
+            filtered = filtered.filter(j =>
+                j.brand.toLowerCase().includes(search) ||
+                j.role_required.toLowerCase().includes(search)
+            );
+        }
+
+        if (experience) {
+            filtered = filtered.filter(j => j.experience === experience);
+        }
+
+        if (city) {
+            filtered = filtered.filter(j => j.city === city);
+        }
+
+        displayJobs(filtered);
+    }
+
+    async function applyToJob(jobId) {
+        if (!app.currentUser) {
+            utils.showToast('Please login to apply', 'warning');
+            app.navigate('/auth');
+            return;
+        }
+
+        utils.showLoading();
+        try {
+            await api.applyToJob(app.currentUser.id, jobId);
+            utils.showToast('Application submitted successfully!', 'success');
+            appliedJobIds.push(jobId);
+            loadJobs(); // Refresh
+        } catch (error) {
+            utils.showToast(error.message || 'Failed to apply', 'error');
+        } finally {
+            utils.hideLoading();
+        }
+    }
+
+    // Load jobs on page load
+    loadJobs();
+</script>

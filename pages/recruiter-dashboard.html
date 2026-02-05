@@ -1,0 +1,67 @@
+<!-- Recruiter Dashboard -->
+<div class="container" style="padding: 60px 20px;">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1><span data-translate="welcome">Welcome</span>, <span id="companyName"></span>!</h1>
+            <p class="text-gray" data-translate="recruiterDashboard">Recruiter Dashboard</p>
+        </div>
+        <button class="btn btn-secondary" onclick="app.logout()">
+            <span data-translate="logout">Logout</span>
+        </button>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid grid-3 mb-6">
+        <a href="/post-job" data-link class="card text-center pointer">
+            <div style="font-size: 2.5rem; margin-bottom: 1rem;">➕</div>
+            <h3 data-translate="postNewJob">Post New Job</h3>
+            <p class="text-gray text-sm">Create new job listing</p>
+        </a>
+
+        <a href="/previous-jobs" data-link class="card text-center pointer">
+            <div style="font-size: 2.5rem; margin-bottom: 1rem;">📋</div>
+            <h3 data-translate="previousJobPosts">Previous Job Posts</h3>
+            <p class="text-gray text-sm">Manage your listings</p>
+        </a>
+
+        <a href="/candidate-search" data-link class="card text-center pointer">
+            <div style="font-size: 2.5rem; margin-bottom: 1rem;">🔍</div>
+            <h3>Search Candidates</h3>
+            <p class="text-gray text-sm">Find verified talent</p>
+        </a>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-3">
+        <div class="stats-card">
+            <div class="stats-card-value" id="totalJobs">0</div>
+            <div class="stats-card-label">Total Job Posts</div>
+        </div>
+
+        <div class="stats-card">
+            <div class="stats-card-value" id="pendingJobs">0</div>
+            <div class="stats-card-label">Pending Approval</div>
+        </div>
+
+        <div class="stats-card">
+            <div class="stats-card-value" id="totalApplications">0</div>
+            <div class="stats-card-label">Total Applications</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const recruiter = app.currentRecruiter;
+    if (recruiter) {
+        document.getElementById('companyName').textContent = recruiter.companyName || recruiter.company_name || 'Company';
+
+        // Load stats
+        api.getRecruiterJobs(recruiter.id).then(jobs => {
+            document.getElementById('totalJobs').textContent = jobs.length;
+            document.getElementById('pendingJobs').textContent = jobs.filter(j => j.status === 'pending').length;
+
+            const totalApps = jobs.reduce((sum, job) => sum + parseInt(job.application_count || 0), 0);
+            document.getElementById('totalApplications').textContent = totalApps;
+        }).catch(console.error);
+    }
+</script>

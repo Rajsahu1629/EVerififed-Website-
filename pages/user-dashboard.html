@@ -1,0 +1,75 @@
+<!-- User Dashboard -->
+<div class="container" style="padding: 60px 20px;">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1><span data-translate="welcome">Welcome</span>, <span id="userName"></span>!</h1>
+            <p class="text-gray">Your verification status: <span id="verificationBadge"></span></p>
+        </div>
+        <button class="btn btn-secondary" onclick="app.logout()">
+            <span data-translate="logout">Logout</span>
+        </button>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid grid-3 mb-6">
+        <a href="/jobs" data-link class="card text-center pointer">
+            <div style="font-size: 2.5rem; margin-bottom: 1rem;">💼</div>
+            <h3 data-translate="jobs">Browse Jobs</h3>
+            <p class="text-gray text-sm">Find EV job opportunities</p>
+        </a>
+
+        <a href="/skill-verification" data-link class="card text-center pointer">
+            <div style="font-size: 2.5rem; margin-bottom: 1rem;">✓</div>
+            <h3 data-translate="skillVerification">Skill Verification</h3>
+            <p class="text-gray text-sm">Take verification quiz</p>
+        </a>
+
+        <a href="/id-card" data-link class="card text-center pointer">
+            <div style="font-size: 2.5rem; margin-bottom: 1rem;">🎫</div>
+            <h3 data-translate="idCard">ID Card</h3>
+            <p class="text-gray text-sm">View your digital ID</p>
+        </a>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-3">
+        <div class="card">
+            <h4 class="text-gray text-sm">Quiz Score</h4>
+            <div class="text-xl font-bold" id="quizScore">--</div>
+        </div>
+
+        <div class="card">
+            <h4 class="text-gray text-sm" data-translate="appliedJobs">Applied Jobs</h4>
+            <div class="text-xl font-bold" id="appliedCount">0</div>
+        </div>
+
+        <div class="card">
+            <h4 class="text-gray text-sm">Experience</h4>
+            <div class="text-xl font-bold" id="userExperience">--</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Load user data
+    const user = app.currentUser;
+    if (user) {
+        document.getElementById('userName').textContent = user.fullName || user.full_name || 'User';
+        document.getElementById('userExperience').textContent = user.experience || 'Not specified';
+
+        const quizScore = user.quizScore && user.totalQuestions ?
+            `${user.quizScore}/${user.totalQuestions}` : 'Not taken';
+        document.getElementById('quizScore').textContent = quizScore;
+
+        // Verification status badge
+        const statusColor = utils.getVerificationStatusColor(user.verificationStatus);
+        const statusText = utils.getVerificationStatusText(user.verificationStatus, language.getLanguage());
+        const badge = document.getElementById('verificationBadge');
+        badge.innerHTML = `<span class="badge badge-${statusColor}">${statusText}</span>`;
+
+        // Load applied jobs count
+        api.getUserApplications(user.id).then(applications => {
+            document.getElementById('appliedCount').textContent = applications.length;
+        }).catch(console.error);
+    }
+</script>

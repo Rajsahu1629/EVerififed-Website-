@@ -1,0 +1,338 @@
+<!-- Authentication Page - Login/Register for Users, Recruiters, Admin -->
+<div class="container-sm" style="padding: 60px 20px;">
+    <div class="glass-card">
+        <h1 class="text-center" data-translate="login">Login</h1>
+
+        <!-- Role Selection -->
+        <div id="roleSelection" class="mb-6">
+            <label class="form-label" data-translate="selectRole">Select your role</label>
+            <div class="grid grid-3 gap-3">
+                <button class="btn btn-secondary" onclick="selectRole('user')" id="userRoleBtn">
+                    <span data-translate="evTechnician">Technician</span>
+                </button>
+                <button class="btn btn-secondary" onclick="selectRole('recruiter')" id="recruiterRoleBtn">
+                    <span data-translate="recruiter">Recruiter</span>
+                </button>
+                <button class="btn btn-secondary" onclick="selectRole('admin')" id="adminRoleBtn">
+                    <span data-translate="admin">Admin</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Action Toggle (Login/Register) -->
+        <div id="actionToggle" class="flex justify-center gap-4 mb-6 hidden">
+            <button class="btn btn-outline" onclick="toggleAction('login')" id="loginToggle">
+                <span data-translate="login">Login</span>
+            </button>
+            <button class="btn btn-secondary" onclick="toggleAction('register')" id="registerToggle">
+                <span data-translate="register">Register</span>
+            </button>
+        </div>
+
+        <!-- Login Form -->
+        <form id="loginForm" class="hidden">
+            <div class="form-group">
+                <label class="form-label" data-translate="phoneNumber">Phone Number</label>
+                <input type="tel" class="form-control" id="loginPhone" placeholder="10-digit mobile number"
+                    maxlength="10" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" data-translate="password">Password</label>
+                <input type="password" class="form-control" id="loginPassword" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%;">
+                <span data-translate="login">Login</span>
+            </button>
+        </form>
+
+        <!-- Registration Form -->
+        <form id="registerForm" class="hidden">
+            <!-- Common Fields -->
+            <div class="form-group">
+                <label class="form-label" data-translate="fullName">Full Name</label>
+                <input type="text" class="form-control" id="regFullName" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" data-translate="phoneNumber">Phone Number</label>
+                <input type="tel" class="form-control" id="regPhone" placeholder="10-digit mobile number" maxlength="10"
+                    required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" data-translate="password">Password</label>
+                <input type="password" class="form-control" id="regPassword" minlength="6" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" data-translate="confirmPassword">Confirm Password</label>
+                <input type="password" class="form-control" id="regConfirmPassword" minlength="6" required>
+            </div>
+
+            <!-- User-specific fields -->
+            <div id="userFields" class="hidden">
+                <div class="form-group">
+                    <label class="form-label" data-translate="state">State</label>
+                    <input type="text" class="form-control" id="regState">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" data-translate="city">City</label>
+                    <input type="text" class="form-control" id="regCity">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" data-translate="pincode">Pincode</label>
+                    <input type="text" class="form-control" id="regPincode" maxlength="6">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" data-translate="qualification">Qualification</label>
+                    <select class="form-control" id="regQualification">
+                        <option value="">Select Qualification</option>
+                        <option value="ITI">ITI</option>
+                        <option value="Diploma">Diploma</option>
+                        <option value="10th Pass">10th Pass</option>
+                        <option value="12th Pass">12th Pass</option>
+                        <option value="B.Tech">B.Tech / B.E.</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" data-translate="experience">Experience</label>
+                    <select class="form-control" id="regExperience">
+                        <option value="">Select Experience</option>
+                        <option value="Fresher">Fresher</option>
+                        <option value="1 year">1 year</option>
+                        <option value="2 years">2 years</option>
+                        <option value="3 years">3 years</option>
+                        <option value="4 years">4 years</option>
+                        <option value="5+ years">5+ years</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Role</label>
+                    <select class="form-control" id="regRole">
+                        <option value="technician">EV Technician</option>
+                        <option value="sales">Sales</option>
+                        <option value="fresher">Fresher (Training Role)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Domain</label>
+                    <select class="form-control" id="regDomain">
+                        <option value="EV">EV</option>
+                        <option value="BS6">BS6</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Recruiter-specific fields -->
+            <div id="recruiterFields" class="hidden">
+                <div class="form-group">
+                    <label class="form-label" data-translate="companyName">Company Name</label>
+                    <input type="text" class="form-control" id="regCompanyName">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" data-translate="entityType">Entity Type</label>
+                    <select class="form-control" id="regEntityType">
+                        <option value="">Select Type</option>
+                        <option value="Dealer">Dealer</option>
+                        <option value="Fleet">Fleet</option>
+                        <option value="OEM">OEM</option>
+                        <option value="Workshop">Workshop</option>
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%;">
+                <span data-translate="register">Register</span>
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    let selectedRole = '';
+    let currentAction = 'login';
+
+    function selectRole(role) {
+        selectedRole = role;
+
+        // Update buttons
+        document.querySelectorAll('#roleSelection button').forEach(btn => {
+            btn.classList.remove('btn-primary');
+            btn.classList.add('btn-secondary');
+        });
+
+        if (role === 'user') document.getElementById('userRoleBtn').classList.replace('btn-secondary', 'btn-primary');
+        if (role === 'recruiter') document.getElementById('recruiterRoleBtn').classList.replace('btn-secondary', 'btn-primary');
+        if (role === 'admin') document.getElementById('adminRoleBtn').classList.replace('btn-secondary', 'btn-primary');
+
+        // Show action toggle and login form
+        document.getElementById('actionToggle').classList.remove('hidden');
+        document.getElementById('loginForm').classList.remove('hidden');
+        document.getElementById('registerForm').classList.add('hidden');
+
+        // Hide register option for admin
+        if (role === 'admin') {
+            document.getElementById('registerToggle').classList.add('hidden');
+            toggleAction('login');
+        } else {
+            document.getElementById('registerToggle').classList.remove('hidden');
+        }
+    }
+
+    function toggleAction(action) {
+        currentAction = action;
+
+        // Update toggle buttons
+        if (action === 'login') {
+            document.getElementById('loginToggle').classList.replace('btn-outline', 'btn-primary');
+            document.getElementById('registerToggle').classList.replace('btn-primary', 'btn-secondary');
+            document.getElementById('loginForm').classList.remove('hidden');
+            document.getElementById('registerForm').classList.add('hidden');
+        } else {
+            document.getElementById('loginToggle').classList.replace('btn-primary', 'btn-outline');
+            document.getElementById('registerToggle').classList.replace('btn-secondary', 'btn-primary');
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('registerForm').classList.remove('hidden');
+
+            // Show appropriate registration fields
+            if (selectedRole === 'user') {
+                document.getElementById('userFields').classList.remove('hidden');
+                document.getElementById('recruiterFields').classList.add('hidden');
+            } else if (selectedRole === 'recruiter') {
+                document.getElementById('userFields').classList.add('hidden');
+                document.getElementById('recruiterFields').classList.remove('hidden');
+            }
+        }
+    }
+
+    // Login form handler
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const phone = document.getElementById('loginPhone').value;
+        const password = document.getElementById('loginPassword').value;
+
+        if (!utils.validatePhone(phone)) {
+            utils.showToast(language.t('invalidPhone'), 'error');
+            return;
+        }
+
+        utils.showLoading();
+
+        try {
+            let response;
+            if (selectedRole === 'user') {
+                response = await api.loginUser(phone, password);
+                if (response.success) {
+                    app.saveUserSession(response.user);
+                    utils.showToast(language.t('loginSuccess'), 'success');
+                    app.navigate('/user-dashboard');
+                }
+            } else if (selectedRole === 'recruiter') {
+                response = await api.loginRecruiter(phone, password);
+                if (response.success) {
+                    app.saveRecruiterSession(response.recruiter);
+                    utils.showToast(language.t('loginSuccess'), 'success');
+                    app.navigate('/recruiter-dashboard');
+                }
+            } else if (selectedRole === 'admin') {
+                // Simple admin check - in production use proper auth
+                if (phone === '9999999999' && password === 'admin123') {
+                    app.saveAdminSession();
+                    utils.showToast(language.t('loginSuccess'), 'success');
+                    app.navigate('/admin-dashboard');
+                } else {
+                    throw new Error('Invalid admin credentials');
+                }
+            }
+        } catch (error) {
+            utils.showToast(error.message || language.t('loginFailed'), 'error');
+        } finally {
+            utils.hideLoading();
+        }
+    });
+
+    // Register form handler
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const fullName = document.getElementById('regFullName').value;
+        const phone = document.getElementById('regPhone').value;
+        const password = document.getElementById('regPassword').value;
+        const confirmPassword = document.getElementById('regConfirmPassword').value;
+
+        // Validation
+        if (!utils.validatePhone(phone)) {
+            utils.showToast(language.t('invalidPhone'), 'error');
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            utils.showToast(language.t('passwordMismatch'), 'error');
+            return;
+        }
+
+        utils.showLoading();
+
+        try {
+            if (selectedRole === 'user') {
+                const userData = {
+                    fullName,
+                    phoneNumber: phone,
+                    password,
+                    state: document.getElementById('regState').value,
+                    city: document.getElementById('regCity').value,
+                    pincode: document.getElementById('regPincode').value,
+                    qualification: document.getElementById('regQualification').value,
+                    experience: document.getElementById('regExperience').value,
+                    role: document.getElementById('regRole').value,
+                    domain: document.getElementById('regDomain').value,
+                    currentWorkshop: '',
+                    brandWorkshop: '',
+                    brands: [],
+                    priorKnowledge: '',
+                    currentSalary: '',
+                    vehicleCategory: null,
+                    trainingRole: null
+                };
+
+                const response = await api.registerUser(userData);
+                if (response.success) {
+                    utils.showToast(language.t('registrationSuccess'), 'success');
+                    toggleAction('login');
+                }
+            } else if (selectedRole === 'recruiter') {
+                const recruiterData = {
+                    companyName: document.getElementById('regCompanyName').value,
+                    entityType: document.getElementById('regEntityType').value,
+                    phoneNumber: phone,
+                    password,
+                    fullAddress: '',
+                    city: '',
+                    state: '',
+                    pincode: ''
+                };
+
+                const response = await api.registerRecruiter(recruiterData);
+                if (response.success) {
+                    utils.showToast(language.t('registrationSuccess'), 'success');
+                    toggleAction('login');
+                }
+            }
+        } catch (error) {
+            utils.showToast(error.message || language.t('registrationFailed'), 'error');
+        } finally {
+            utils.hideLoading();
+        }
+    });
+</script>
