@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 
+import logo from '../assets/logo.png';
+
 const Header: React.FC = () => {
     const { user, recruiter, isAdmin, logout } = useAuth();
     const { t, language, toggleLanguage } = useLanguage();
@@ -26,8 +28,9 @@ const Header: React.FC = () => {
         <header>
             <div className="container">
                 <div className="header-content">
-                    <Link to="/" className="logo">
-                        EVerified
+                    <Link to="/" className="logo" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <img src={logo} alt="EVerified Logo" style={{ height: '40px', width: 'auto' }} />
+                        <span>EVerified</span>
                     </Link>
                     <nav>
                         <ul className="nav-links">
