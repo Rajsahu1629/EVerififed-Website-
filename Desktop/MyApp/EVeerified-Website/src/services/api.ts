@@ -1,5 +1,8 @@
 // API Service - Backend Integration
-const API_BASE_URL = 'http://13.53.140.88:3001/api';
+// If served over HTTPS (Vercel), use local proxy. Else (localhost), use direct backend.
+const API_BASE_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' && window.location.protocol === 'https:'
+    ? '/api'
+    : 'http://13.53.140.88:3001/api');
 
 
 
@@ -77,6 +80,17 @@ class ApiService {
         });
     }
 
+    async getCardOrderStatus(userId: number) {
+        return this.request<{ cardOrdered: boolean }>(`/users/${userId}/card-order`);
+    }
+
+    async updateCardOrderStatus(userId: number, cardOrdered: boolean) {
+        return this.request<{ success: boolean }>(`/users/${userId}/card-order`, {
+            method: 'PUT',
+            body: JSON.stringify({ cardOrdered }),
+        });
+    }
+
     // Recruiter endpoints
     async registerRecruiter(recruiterData: Partial<Recruiter>) {
         return this.request<{ success: boolean; recruiter: Recruiter }>('/recruiters', {
@@ -92,6 +106,10 @@ class ApiService {
     // Job endpoints
     async getJobs() {
         return this.request<Job[]>('/jobs');
+    }
+
+    async getJob(jobId: number) {
+        return this.request<Job>(`/jobs/${jobId}`);
     }
 
     async createJob(jobData: CreateJobPayload) {
@@ -172,9 +190,35 @@ class ApiService {
     async healthCheck() {
         return this.request<{ status: string }>('/health');
     }
+    async getVerificationQuestions(role: string, step: number = 1) {
+        return this.request<VerificationQuestion[]>(`/verification/questions?role=${role}&step=${step}`);
+    }
+
+    async getCardOrders() {
+        return this.request<User[]>('/admin/card-orders');
+    }
 }
 
 // Types
+export interface VerificationQuestion {
+    id: string;
+    question_text_hi: string;
+    question_text_en: string;
+    question_text_mr?: string;
+    question_text_kn?: string;
+    question_text_te?: string;
+    question_text_or?: string;
+    options: {
+        hi: string;
+        en: string;
+        mr?: string;
+        kn?: string;
+        te?: string;
+        or?: string;
+        isCorrect: boolean;
+    }[];
+}
+
 export interface User {
     id: number;
     fullName?: string;
@@ -206,7 +250,10 @@ export interface User {
     is_admin_verified?: boolean;
     prior_knowledge?: string;
     current_salary?: string;
+    currentSalary?: string;
     password?: string;
+    quizFailedAt?: string;
+    quiz_failed_at?: string;
 }
 
 export interface Recruiter {
@@ -218,6 +265,11 @@ export interface Recruiter {
     phoneNumber?: string;
     phone_number?: string;
     password?: string;
+    fullAddress?: string;
+    full_address?: string;
+    city?: string;
+    state?: string;
+    pincode?: string;
 }
 
 
@@ -276,6 +328,9 @@ export interface Application {
     salary_min?: number;
     salary_max?: number;
     company_name?: string;
+    created_at?: string;
+    job_description?: string;
+    experience?: string;
 }
 
 export interface AdminStats {

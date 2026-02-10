@@ -2,12 +2,15 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useTheme } from '../contexts/ThemeContext';
+import { Sun, Moon } from 'lucide-react';
 
 import logo from '../assets/logo.png';
 
 const Header: React.FC = () => {
     const { user, recruiter, isAdmin, logout } = useAuth();
     const { t, language, toggleLanguage } = useLanguage();
+    const { theme, toggleTheme } = useTheme();
     const navigate = useNavigate();
 
     const handleLogout = () => {
@@ -53,8 +56,19 @@ const Header: React.FC = () => {
                                 <button
                                     className="btn btn-outline btn-sm"
                                     onClick={toggleLanguage}
+                                    style={{ marginRight: '8px' }}
                                 >
                                     {language === 'en' ? 'हिंदी' : 'English'}
+                                </button>
+                            </li>
+                            <li>
+                                <button
+                                    className="btn btn-outline btn-sm"
+                                    onClick={toggleTheme}
+                                    title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+                                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.4rem' }}
+                                >
+                                    {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
                                 </button>
                             </li>
                         </ul>

@@ -28,6 +28,7 @@ export const translations: Translations = {
     logout: { en: 'Logout', hi: 'लॉगआउट' },
     submit: { en: 'Submit', hi: 'सबमिट करें' },
     next: { en: 'Next', hi: 'आगे बढ़ें' },
+    previous: { en: 'Previous', hi: 'पिछला' },
     back: { en: 'Back', hi: 'वापस जाएं' },
     save: { en: 'Save', hi: 'सेव करें' },
     cancel: { en: 'Cancel', hi: 'रद्द करें' },
@@ -46,6 +47,7 @@ export const translations: Translations = {
     pincode: { en: 'Pincode', hi: 'पिनकोड' },
     qualification: { en: 'Qualification', hi: 'योग्यता' },
     experience: { en: 'Experience', hi: 'अनुभव' },
+    yearExperienced: { en: 'Year Exp.', hi: 'वर्ष अनुभव' },
 
     // Dashboard
     welcome: { en: 'Welcome', hi: 'स्वागत है' },
@@ -100,6 +102,7 @@ export const translations: Translations = {
     required: { en: 'This field is required', hi: 'यह फ़ील्ड आवश्यक है' },
     invalidPhone: { en: 'Please enter a valid phone number', hi: 'कृपया वैध फ़ोन नंबर दर्ज करें' },
     passwordMismatch: { en: 'Passwords do not match', hi: 'पासवर्ड मेल नहीं खाते' },
+    forgotPassword: { en: 'Forgot Password?', hi: 'पासवर्ड भूल गए?' },
 
     // Misc
     search: { en: 'Search', hi: 'खोजें' },

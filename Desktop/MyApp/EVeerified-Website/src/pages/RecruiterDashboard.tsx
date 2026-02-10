@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { api } from '../services/api';
 import type { Job } from '../services/api';
+import { Plus, FileText, Search, MessageCircle, LogOut } from 'lucide-react';
 
 const RecruiterDashboard: React.FC = () => {
     const { recruiter, logout } = useAuth();
@@ -16,7 +17,7 @@ const RecruiterDashboard: React.FC = () => {
                 setStats({
                     totalJobs: jobs.length,
                     pendingJobs: jobs.filter((j) => j.status === 'pending').length,
-                    totalApplications: jobs.reduce((sum, j) => sum + (j.application_count || 0), 0),
+                    totalApplications: jobs.reduce((sum, j) => sum + (Number(j.application_count) || 0), 0),
                 });
             }).catch(console.error);
         }
@@ -24,52 +25,108 @@ const RecruiterDashboard: React.FC = () => {
 
     const companyName = recruiter?.companyName || recruiter?.company_name || 'Company';
 
+    const handleWhatsAppSupport = () => {
+        const whatsappNumber = '919473928468';
+        const message = 'Hi, I need help with EVerified app.';
+        window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, '_blank');
+    };
+
     return (
-        <div className="container" style={{ padding: '60px 20px' }}>
-            <div className="flex justify-between items-center mb-6">
-                <div>
-                    <h1>{t('welcome')}, {companyName}!</h1>
-                    <p className="text-gray">{t('recruiter')} {t('dashboard')}</p>
+        <div style={{ minHeight: '100vh', background: '#f8fafc', paddingBottom: '80px' }}>
+            {/* Header */}
+            <div style={{ background: '#10b981', padding: '24px 20px', paddingBottom: '60px', borderRadius: '0 0 24px 24px' }}>
+                <div className="container">
+                    <div className="flex justify-between items-center text-white">
+                        <div>
+                            <p style={{ opacity: 0.9, fontSize: '14px' }}>{t('welcome')}</p>
+                            <h1 style={{ fontSize: '24px', fontWeight: 'bold' }}>{companyName}</h1>
+                        </div>
+                        <button
+                            onClick={logout}
+                            style={{ background: 'rgba(255,255,255,0.2)', padding: '10px', borderRadius: '12px', border: 'none', cursor: 'pointer', color: 'white' }}
+                        >
+                            <LogOut size={20} />
+                        </button>
+                    </div>
                 </div>
-                <button className="btn btn-secondary" onClick={logout}>{t('logout')}</button>
             </div>
 
-            {/* Quick Actions */}
-            <div className="grid grid-3 mb-6">
-                <Link to="/post-job" className="card text-center" style={{ cursor: 'pointer' }}>
-                    <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>➕</div>
-                    <h3>{t('postNewJob')}</h3>
-                    <p className="text-gray text-sm">Create new job listing</p>
-                </Link>
+            <div className="container" style={{ marginTop: '-40px', padding: '0 20px' }}>
+                <div className="grid gap-4">
+                    {/* Post New Job */}
+                    <Link to="/post-job" style={{ textDecoration: 'none' }}>
+                        <div className="flex items-center gap-4 p-4 hover-scale" style={{ background: 'white', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
+                            <div style={{ background: '#10b981', width: '50px', height: '50px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+                                <Plus size={24} />
+                            </div>
+                            <div>
+                                <h3 style={{ fontSize: '18px', fontWeight: 'bold', margin: 0, color: '#1e293b' }}>{t('postNewJob')}</h3>
+                                <p style={{ fontSize: '14px', color: '#64748b', margin: 0 }}>Hire EV professionals</p>
+                            </div>
+                            <div style={{ marginLeft: 'auto', color: '#cbd5e1' }}>›</div>
+                        </div>
+                    </Link>
 
-                <Link to="/previous-jobs" className="card text-center" style={{ cursor: 'pointer' }}>
-                    <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>📋</div>
-                    <h3>{t('previousJobPosts')}</h3>
-                    <p className="text-gray text-sm">Manage your listings</p>
-                </Link>
+                    {/* Previous Jobs */}
+                    <Link to="/previous-jobs" style={{ textDecoration: 'none' }}>
+                        <div className="flex items-center gap-4 p-4 hover-scale" style={{ background: 'white', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
+                            <div style={{ background: '#fffbeb', width: '50px', height: '50px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f59e0b' }}>
+                                <FileText size={24} />
+                            </div>
+                            <div>
+                                <h3 style={{ fontSize: '18px', fontWeight: 'bold', margin: 0, color: '#1e293b' }}>{t('previousJobPosts')}</h3>
+                                <p style={{ fontSize: '14px', color: '#64748b', margin: 0 }}>View your posted jobs</p>
+                            </div>
+                            <div style={{ marginLeft: 'auto', color: '#cbd5e1' }}>›</div>
+                        </div>
+                    </Link>
 
-                <Link to="/candidate-search" className="card text-center" style={{ cursor: 'pointer' }}>
-                    <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>🔍</div>
-                    <h3>{t('searchCandidates')}</h3>
-                    <p className="text-gray text-sm">Find verified talent</p>
-                </Link>
-            </div>
+                    {/* Find Candidates */}
+                    <Link to="/candidate-search" style={{ textDecoration: 'none' }}>
+                        <div className="flex items-center gap-4 p-4 hover-scale" style={{ background: 'white', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
+                            <div style={{ background: '#ecfeff', width: '50px', height: '50px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#06b6d4' }}>
+                                <Search size={24} />
+                            </div>
+                            <div>
+                                <h3 style={{ fontSize: '18px', fontWeight: 'bold', margin: 0, color: '#1e293b' }}>{t('searchCandidates')}</h3>
+                                <p style={{ fontSize: '14px', color: '#64748b', margin: 0 }}>Search verified EV professionals</p>
+                            </div>
+                            <div style={{ marginLeft: 'auto', color: '#cbd5e1' }}>›</div>
+                        </div>
+                    </Link>
 
-            {/* Stats */}
-            <div className="grid grid-3">
-                <div className="stats-card">
-                    <div className="stats-value">{stats.totalJobs}</div>
-                    <div className="stats-label">Total Job Posts</div>
+                    {/* Help & Support */}
+                    <div onClick={handleWhatsAppSupport} style={{ cursor: 'pointer' }}>
+                        <div className="flex items-center gap-4 p-4 hover-scale" style={{ background: 'white', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
+                            <div style={{ background: '#f0fdf4', width: '50px', height: '50px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#22c55e' }}>
+                                <MessageCircle size={24} />
+                            </div>
+                            <div>
+                                <h3 style={{ fontSize: '18px', fontWeight: 'bold', margin: 0, color: '#1e293b' }}>Help & Support</h3>
+                                <p style={{ fontSize: '14px', color: '#64748b', margin: 0 }}>Chat with us on WhatsApp</p>
+                            </div>
+                            <div style={{ marginLeft: 'auto', color: '#cbd5e1' }}>›</div>
+                        </div>
+                    </div>
                 </div>
 
-                <div className="stats-card">
-                    <div className="stats-value">{stats.pendingJobs}</div>
-                    <div className="stats-label">Pending Approval</div>
-                </div>
-
-                <div className="stats-card">
-                    <div className="stats-value">{stats.totalApplications}</div>
-                    <div className="stats-label">Total Applications</div>
+                {/* Stats Summary - Optional but good for web */}
+                <div style={{ marginTop: '30px' }}>
+                    <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#64748b', marginBottom: '15px' }}>Overview</h3>
+                    <div className="grid grid-3 gap-4">
+                        <div style={{ background: 'white', padding: '15px', borderRadius: '12px', textAlign: 'center', border: '1px solid #e2e8f0' }}>
+                            <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#10b981' }}>{stats.totalJobs}</div>
+                            <div style={{ fontSize: '12px', color: '#64748b' }}>Active Jobs</div>
+                        </div>
+                        <div style={{ background: 'white', padding: '15px', borderRadius: '12px', textAlign: 'center', border: '1px solid #e2e8f0' }}>
+                            <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#f59e0b' }}>{stats.pendingJobs}</div>
+                            <div style={{ fontSize: '12px', color: '#64748b' }}>Pending</div>
+                        </div>
+                        <div style={{ background: 'white', padding: '15px', borderRadius: '12px', textAlign: 'center', border: '1px solid #e2e8f0' }}>
+                            <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#3b82f6' }}>{stats.totalApplications}</div>
+                            <div style={{ fontSize: '12px', color: '#64748b' }}>Applicants</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

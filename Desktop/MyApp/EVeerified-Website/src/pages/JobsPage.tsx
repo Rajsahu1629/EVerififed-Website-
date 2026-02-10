@@ -18,6 +18,7 @@ const JobsPage: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [experienceFilter, setExperienceFilter] = useState('');
     const [cityFilter, setCityFilter] = useState('');
+    const [pincodeFilter, setPincodeFilter] = useState('');
 
     useEffect(() => {
         loadJobs();
@@ -74,10 +75,15 @@ const JobsPage: React.FC = () => {
             filtered = filtered.filter((j) => j.city === cityFilter);
         }
 
+        if (pincodeFilter) {
+            filtered = filtered.filter((j) => j.pincode && j.pincode.includes(pincodeFilter));
+        }
+
         setFilteredJobs(filtered);
     };
 
     const cities = [...new Set(jobs.map((j) => j.city).filter(Boolean))];
+
 
     if (loading) {
         return (
@@ -93,7 +99,7 @@ const JobsPage: React.FC = () => {
 
             {/* Filters */}
             <div className="card mb-6">
-                <div className="grid grid-4 gap-3">
+                <div className="grid grid-4 gap-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
                     <input
                         type="text"
                         className="form-control"
@@ -124,6 +130,14 @@ const JobsPage: React.FC = () => {
                             </option>
                         ))}
                     </select>
+                    <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Enter Pincode"
+                        value={pincodeFilter}
+                        onChange={(e) => setPincodeFilter(e.target.value)}
+                        maxLength={6}
+                    />
                     <button className="btn btn-primary" onClick={applyFilters}>
                         {t('filter')}
                     </button>

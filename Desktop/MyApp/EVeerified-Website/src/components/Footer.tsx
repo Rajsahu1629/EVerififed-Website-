@@ -10,10 +10,10 @@ const Footer: React.FC = () => {
                 <div className="logo" style={{ marginBottom: '1rem' }}>EVerified</div>
                 <p className="text-gray">{t('tagline')}</p>
                 <p className="text-sm text-gray" style={{ marginTop: '1rem' }}>
-                    © 2026 EVerified. All rights reserved.
+                    © 2026 EVerified. All rights reserved. | <a href="/privacy-policy" style={{ color: 'var(--gray)', textDecoration: 'none' }}>Privacy Policy</a>
                 </p>
             </div>
-        </footer>
+        </footer >
     );
 };
 
